@@ -6,15 +6,26 @@
     </div>
 
     <ion-label class="ion-text-wrap">
-      <h2>
+      <h1>
         {{ event.band }}, {{ event.place }}
-        <span class="date">
-          <ion-note>{{ event.weekday }} {{ event.date }}</ion-note>
+        <span class="chevron">
           <ion-icon :icon="chevronForward" size="small" v-if="isIos()"></ion-icon>
         </span>
-      </h2>
-      <h3>{{ event.weekday }} {{ event.time }}</h3>
+      </h1>
+      <p class="date">
+        {{ event.date }} 
+      </p>
       <p>
+        {{ event.weekday }} {{ event.time }}
+        <ion-badge color="medium" v-if="event.extra?.toLowerCase() === 'pro'">PRO-dans</ion-badge>
+      </p>
+      <p v-if="event.city === event.county && event.county === event.region">
+        {{ event.city }}
+      </p>
+      <p v-else-if="event.city === event.county">
+        {{ event.county }}, {{ event.region }}
+      </p>
+      <p v-else>
         {{ event.city }}, {{ event.county }}, {{ event.region }}
       </p>
     </ion-label>
@@ -23,7 +34,7 @@
 
 <script lang="ts">
 import { DanceEvent } from '@/data/events';
-import { IonIcon, IonItem, IonLabel, IonNote, IonImg } from '@ionic/vue';
+import { IonIcon, IonItem, IonLabel, IonBadge, IonImg } from '@ionic/vue';
 import { chevronForward, imageSharp } from 'ionicons/icons';
 import { defineComponent, PropType } from 'vue';
 
@@ -33,8 +44,8 @@ export default defineComponent({
     IonIcon,
     IonItem,
     IonLabel,
-    IonNote,
-    IonImg
+    IonImg,
+    IonBadge
   },
   props: {
     event: Object as PropType<DanceEvent>,
@@ -55,26 +66,33 @@ export default defineComponent({
 .list-item {
   --padding-start: 0;
   --inner-padding-end: 0;
+  user-select: none;
 }
 
 .list-item ion-label {
   margin-top: 12px;
   margin-bottom: 12px;
+  margin-right: 6px;
+}
+.list-item ion-label ion-badge {
+  float:right
 }
 
-.list-item  h2 {
+.list-item h1 {
   font-weight: 600;
-  margin: 0;
+  font-size: large;
+  margin-bottom: 6px !important;
 }
-
-.list-item p {
+.list-item h1,p {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   width: 95%;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
-.list-item .date {
+.list-item .chevron {
   float: right;
   align-items: center;
   display: flex;
@@ -94,21 +112,20 @@ export default defineComponent({
   margin-right: 14px;
 }
 
-.list-item .dot {
-  display: block;
-  height: 12px;
-  width: 12px;
-  border-radius: 50%;
-  align-self: start;
-  margin: 16px 10px 16px 16px;
+.list-item .date {
+  font-size: 15px;
 }
-
-.list-item .dot-unread {
-  background: var(--ion-color-primary);
+.list-item .date ion-badge {
+  position: relative;
+  top: 4px;
 }
 
 .list-item .event-image {
   max-height: 100px;
+  
+  margin-bottom: 0px;
+  margin-top: 0px;
+  margin-right: 16px;
 }
 .list-item .event-image ion-img {
   width: 100px;

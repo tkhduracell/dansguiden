@@ -14,32 +14,25 @@
     </ion-header>
     
     <ion-content :fullscreen="true" v-if="event">      
-      <div class="ion-padding">
-        <h1 style="margin-bottom: 18px">
-          {{ event.band }},
-          {{ event.place }}
-        </h1>
-        <IonImg :src="event.spotify_image" 
+      <div class="ion-padding band">
+        <IonImg :src="band?.main_image ?? event.spotify_image" 
           style="max-width: 260px; margin: 0 auto;" 
           v-if="event.spotify_image"/>
         <div v-if="event.city">
-          <p>
-            <b>Plats: </b> {{ event.city }}, {{ event.county }}, {{ event.region }}
-          </p>
+          <b>Plats: </b> {{ event.city }}, {{ event.county }}, {{ event.region }}
         </div>
         <div v-if="event.date">
-          <p>
-            <b>Datum: </b> {{ event.weekday }} {{ event.date }} 
-          </p>
+          <b>Datum: </b> {{ event.weekday }} {{ event.date }} 
         </div>
         <div v-if="event.time">
-          <p>
-            <b>Tid: </b> {{ event.time }}
-          </p>
+          <b>Tid: </b> {{ event.time }}
         </div>
         <div v-if="event.extra">
-          <p><b>Info: </b> {{ event.extra }}</p>
+          <b>Info: </b> {{ event.extra }}
         </div>
+        <iframe v-if="band?.embed_url" style="border-radius:12px" 
+          :src="band.embed_url" width="100%" height="300" frameBorder="0" 
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
       </div>
     </ion-content>
   </ion-page>
@@ -50,7 +43,8 @@ import { useRoute } from 'vue-router';
 import { IonBackButton, IonButtons, IonImg, IonContent, IonHeader, IonTitle, IonPage, IonToolbar } from '@ionic/vue';
 import { personCircle } from 'ionicons/icons';
 import { useEvent } from '../data/events';
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
+import { useBand } from '@/data/bands';
 
 export default defineComponent({
   name: 'ViewMessagePage',
@@ -60,15 +54,18 @@ export default defineComponent({
       getBackButtonText: () => {
         const win = window as any;
         const mode = win && win.Ionic && win.Ionic.mode;
-        return mode === 'ios' ? 'Inbox' : '';
+        return mode === 'ios' ? 'Events' : '';
       }
     }
   },
   setup() {
     const route = useRoute();
     const { event } = useEvent(route.params.id as string)
+    
+    const bandName = computed(() => event.value?.band)
+    const { band } = useBand(bandName)
 
-    return { event }
+    return { event, band }
   },
   components: {
     IonBackButton,
@@ -115,10 +112,8 @@ ion-item ion-note {
   font-weight: normal;
 }
 
-h1 {
-  margin: 0;
-  font-weight: bold;
-  font-size: 22px;
+.band div {
+  margin: 6px 0;
 }
 
 p {

@@ -37,29 +37,33 @@ function iso(date?: Date): string {
 
 export function useEvents(
     datesRef: Ref<undefined | { start: Date, end: Date }>, 
-    locationRef: Ref<undefined | string>) {
+    locationRef: Ref<undefined | string[]>,
+    bandsRef: Ref<undefined | string[]>) {
   
   const firestore = getFirestore()
   const events = ref<DanceEvent[]>([])
 
   const eventCol = collection(firestore, 'events')
   const filters = computed<QueryConstraint[]>(() => {
-    const dates = datesRef.value
+    
     const location = locationRef.value 
-      ? [where('region', '==', locationRef.value)]
+      ? [where('region', 'in', locationRef.value)]
       : []
-    if (dates) {
-      const { start, end } = dates
-      return [
-        where('date', '>=', iso(start)),
-        where('date', '<=', iso(end)),
-        ...location,
-        orderBy("date")
+    const dates = datesRef.value ? 
+      [
+        where('date', '>=', iso(datesRef.value.start)),
+        where('date', '<=', iso(datesRef.value.end))
+      ] : [
+        where('date', '>=', iso())
       ]
-    }
-    return [where('date', '>=', iso()), ...location]
+
+    return [
+      ...location,
+      ...dates,
+      orderBy("date")
+    ]
   })
-  const eventsQuery = computed(() => query(eventCol, ...filters.value, limit(100)))
+  const eventsQuery = computed(() => query(eventCol, ...filters.value, limit(30)))
   
   function onSnapshotUpdated(snap: QuerySnapshot) {
     console.log('Loaded',  snap.size ,'events')
@@ -88,7 +92,20 @@ export function useEvents(
     }
   })
 
-  return { events }
+  function refresh(fn: () => void) {
+    events.value = []
+    if (unsubscribe.value) {
+      unsubscribe.value()
+      unsubscribe.value = undefined
+    }
+    console.log('Loading events...')
+    unsubscribe.value = onSnapshot(eventsQuery.value, (res) => {
+      onSnapshotUpdated(res)
+      fn()
+    });
+  }
+
+  return { events, refresh }
 }
 
 export function useEvent(id: string) {
