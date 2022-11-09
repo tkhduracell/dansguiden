@@ -1,37 +1,43 @@
 <template>
-  <ion-item v-if="message" :routerLink="'/message/' + message.id" :detail="false" class="list-item">
-    <div slot="start" :class="!message.read ? 'dot dot-unread' : 'dot'"></div>
+  <ion-item v-if="event" :routerLink="'/event/' + event._id" detail class="list-item">
+    <div slot="start" class="event-image">
+      <ion-img :src="event?.spotify_image" v-if="event?.spotify_image" />
+      <ion-icon :icon="imageSharp" v-else/>
+    </div>
+
     <ion-label class="ion-text-wrap">
       <h2>
-        {{ message.fromName }}
+        {{ event.band }}, {{ event.place }}
         <span class="date">
-          <ion-note>{{ message.date }}</ion-note>
+          <ion-note>{{ event.weekday }} {{ event.date }}</ion-note>
           <ion-icon :icon="chevronForward" size="small" v-if="isIos()"></ion-icon>
         </span>
       </h2>
-      <h3>{{ message.subject }}</h3>
+      <h3>{{ event.weekday }} {{ event.time }}</h3>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        {{ event.city }}, {{ event.county }}, {{ event.region }}
       </p>
     </ion-label>
   </ion-item>
 </template>
 
 <script lang="ts">
-import { IonIcon, IonItem, IonLabel, IonNote } from '@ionic/vue';
-import { chevronForward } from 'ionicons/icons';
-import { defineComponent } from 'vue';
+import { DanceEvent } from '@/data/events';
+import { IonIcon, IonItem, IonLabel, IonNote, IonImg } from '@ionic/vue';
+import { chevronForward, imageSharp } from 'ionicons/icons';
+import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
-  name: 'MessageListItem',
+  name: 'EventListItem',
   components: {
     IonIcon,
     IonItem,
     IonLabel,
     IonNote,
+    IonImg
   },
   props: {
-    message: Object,
+    event: Object as PropType<DanceEvent>,
   },
   methods: {
     isIos: () => {
@@ -40,7 +46,7 @@ export default defineComponent({
     }
   },
   data() {
-    return { chevronForward }
+    return { chevronForward, imageSharp }
   }
 });
 </script>
@@ -99,5 +105,16 @@ export default defineComponent({
 
 .list-item .dot-unread {
   background: var(--ion-color-primary);
+}
+
+.list-item .event-image {
+  max-height: 100px;
+}
+.list-item .event-image ion-img {
+  width: 100px;
+}
+.list-item .event-image ion-icon {
+  width: 100px;
+  scale: 3.0;
 }
 </style>
