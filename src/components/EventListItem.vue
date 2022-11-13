@@ -67,6 +67,7 @@ export default defineComponent({
   --padding-start: 0;
   --inner-padding-end: 0;
   user-select: none;
+  margin-right: 6px;
 }
 
 .list-item ion-label {

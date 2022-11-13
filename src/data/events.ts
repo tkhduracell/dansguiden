@@ -43,6 +43,14 @@ export function useEvents(
   const firestore = getFirestore()
   const events = ref<DanceEvent[]>([])
 
+  function isBand(e: DanceEvent) {
+    const filters = bandsRef.value
+    if (filters && filters.length > 0) {
+      return filters?.includes(e.band)
+    }
+    return true
+  }
+
   const eventCol = collection(firestore, 'events')
   const filters = computed<QueryConstraint[]>(() => {
     
@@ -56,14 +64,19 @@ export function useEvents(
       ] : [
         where('date', '>=', iso())
       ]
+    const hasBand = bandsRef.value && bandsRef.value.length > 0
+    const bands = (locationRef.value || datesRef.value || !hasBand) ? []
+      : [where('band', 'in', bandsRef.value)]
 
     return [
       ...location,
       ...dates,
-      orderBy("date")
+      ...bands,
+      orderBy("date"),
+      limit(locationRef.value || datesRef.value ? 10000 : 10)
     ]
   })
-  const eventsQuery = computed(() => query(eventCol, ...filters.value, limit(30)))
+  const eventsQuery = computed(() => query(eventCol, ...filters.value))
   
   function onSnapshotUpdated(snap: QuerySnapshot) {
     console.log('Loaded',  snap.size ,'events')
@@ -105,7 +118,11 @@ export function useEvents(
     });
   }
 
-  return { events, refresh }
+  const filtered = computed(() => {
+    return events.value.filter(isBand)
+  })
+
+  return { events: filtered, refresh }
 }
 
 export function useEvent(id: string) {

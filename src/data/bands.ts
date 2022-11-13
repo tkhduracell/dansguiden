@@ -1,6 +1,6 @@
-import { doc, getDoc, getFirestore } from "firebase/firestore";
-import { maxBy } from "lodash";
-import { ref, Ref, watch } from "vue";
+import { collection, doc, getDoc, getDocs, getFirestore, query, orderBy } from "firebase/firestore";
+import { maxBy, sortedUniq } from "lodash";
+import { computed, onMounted, ref, Ref, watch } from "vue";
 
 export type Band = {
     id?: string,
@@ -34,4 +34,53 @@ export function useBand(bandNameRef: Ref<string | undefined>) {
     })
     
     return { band }
+}
+
+export type BandItem = { name: string, id: string }
+export function useBandSelect() {
+    const bands = ref<string[] | undefined>()
+    const filter = ref<string>()
+    const isSelectingBand = ref(false)
+    const all = ref<BandItem[]>([
+      { name: 'Sannex', id: '1' }, 
+      { name: 'Blender', id: '2' }, 
+      { name: 'Duo Vi', id: '3' }
+    ])
+    
+    const store = getFirestore()
+    const q = query(
+        collection(store, 'metadata_bands'), 
+        orderBy('count')
+    )
+
+    onMounted(() => {
+        setTimeout(async () => {
+            const docs = await getDocs(q)
+            const out: BandItem[] = []
+            docs.forEach(item => {
+                out.push({ name: item.id, id: item.id })
+            })
+            console.log('Loaded', out.length, 'bands')
+            all.value = out
+        }, 500)
+    })
+
+    function selectBand(name: string) {
+        if (bands.value?.includes(name)) {
+            bands.value = bands.value.filter(l => l !== name)
+        } else {
+            bands.value = sortedUniq([name, ...(bands.value ?? [])].sort())
+        }
+    }
+
+    const allBands = computed(() => {
+        const f = filter.value
+        const nonSelections = all.value.filter(b => !bands.value?.includes(b.name))
+        if (f && f.length >= 2) {
+            return nonSelections.filter(b => b.name.toLocaleLowerCase().startsWith(f.toLocaleLowerCase()))
+        }
+        return nonSelections.slice(0, 7) ?? []
+    })
+
+    return { filter, bands, allBands, isSelectingBand, selectBand }
 }

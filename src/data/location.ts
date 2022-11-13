@@ -1,4 +1,4 @@
-import { sortedUniq, uniq } from 'lodash';
+import { sortedUniq } from 'lodash';
 import { ref, Ref, computed } from 'vue';
 
 export function useLocation(filter: Ref<string | undefined>) {
