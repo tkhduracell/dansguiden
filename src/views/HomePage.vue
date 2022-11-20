@@ -6,16 +6,10 @@
       </ion-toolbar>
     </ion-header>
     
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" >
       <ion-refresher slot="fixed" @ionRefresh="refresh">
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
-      
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Inbox</ion-title>
-        </ion-toolbar>
-      </ion-header>
       
       <ion-list>
         <ion-chip :outline="!range" @click="isSelectingRange = true">
@@ -45,84 +39,35 @@
             v-if="bands" ></ion-icon>
         </ion-chip>
 
+        <ion-chip :outline="!venues" @click="isSelectingVenue = true">
+          <ion-icon :icon="icons.homeSharp" color="primary"></ion-icon>
+          <span v-if="venues && venues.length > 1">{{ venues[0] }} (+{{ venues.length - 1 }})</span>
+          <span v-else-if="venues && venues.length == 1">{{ venues[0] }}</span>
+          <span v-else>Välj plats</span>
+          <ion-icon :icon="icons.close" 
+            @click.stop.prevent="venues = undefined" 
+            v-if="venues" ></ion-icon>
+        </ion-chip>
+        
         <EventListItem v-for="event in events" 
           :key="event._id" :event="event" />
+
       </ion-list>
 
-      <ion-modal :is-open="isSelectingRange" @didDismiss="isSelectingRange = false" :initial-breakpoint="0.9" :breakpoints="[0.9]">
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Välj datum</ion-title>
-            <ion-buttons slot="end">
-              <ion-button @click="isSelectingRange = false">Klar</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-          <div class="quick-filter">
-            <ion-button size="small" fill="outline" @click="selectQuickRange(2)">Kommande 2 veckor</ion-button>
-            <ion-button size="small" fill="outline" @click="selectQuickRange(4)">Kommande månad</ion-button>
-          </div>
-          <date-picker mode="date" :sm=12 :rows=2 v-model="range" is-range is-expanded />
-        </ion-content>
-      </ion-modal>
+      <RangeModal v-model:range="range" @dismiss="isSelectingRange = false" 
+        :is-open="isSelectingRange" @select:weeks="selectQuickRange($event)" />
 
+      <LocationModal v-model:filter="locationFilter" @dismiss="isSelectingLocation = false"
+        :all-locations="allLocations" :locations="locations" :is-open="isSelectingLocation" 
+        @select:location="selectLocation($event)" />
 
-      <ion-modal :is-open="isSelectingLocation" @didDismiss="isSelectingLocation = false" :initial-breakpoint="0.9" :breakpoints="[0.9]">
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Platser</ion-title>
-            <ion-buttons slot="end">
-              <ion-button @click="isSelectingLocation = false">Klar</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding locations" :scroll-events="true">
-          <ion-searchbar placeholder="Sök" v-model="locationFilter" />
-          <ion-list>
-            <ion-item v-for="l in allLocations" :key="'loc-' + l.id" @click="selectLocation(l.name)">
-              <ion-label>
-                <h2>{{ l.name }}</h2>
-                <p>{{ l.city }}</p>
-              </ion-label>
-              <ion-icon :icon="icons.checkmarkSharp" color="primary" slot="end" v-if="locations?.includes(l.name)"></ion-icon>
-            </ion-item>
-          </ion-list>
-        </ion-content>
-      </ion-modal>
+      <BandModal v-model:filter="bandFilter" @dismiss="isSelectingBand = false"
+        :all-bands="allBands" :bands="bands" :is-open="isSelectingBand" 
+        @select:band="selectBand($event)" />
 
-      <ion-modal :is-open="isSelectingBand" @didDismiss="isSelectingBand = false" :initial-breakpoint="0.9" :breakpoints="[0.9]">
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Band</ion-title>
-            <ion-buttons slot="end">
-              <ion-button @click="isSelectingBand = false">Klar</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding bands" :scroll-events="true">
-          <ion-searchbar placeholder="Sök" v-model="bandFilter" />
-          <ion-list>
-            <ion-item v-for="b in bands" :key="'band-' + b">
-              <ion-label>
-                <h2>{{ b }}</h2>
-              </ion-label>
-              <ion-icon :icon="icons.checkmarkSharp" color="primary" slot="end"></ion-icon>
-            </ion-item>
-            <ion-item v-if="!bandFilter" disabled>
-              <ion-label>
-                Använd fältet för att hitta bandet
-              </ion-label>
-            </ion-item>
-            <ion-item v-for="b in allBands" :key="'band-' + b.id" @click="selectBand(b.name)">
-              <ion-label>
-                <h2>{{ b.name }}</h2>
-              </ion-label>
-              <ion-icon :icon="icons.checkmarkSharp" color="primary" slot="end" v-if="bands?.includes(b.name)"></ion-icon>
-            </ion-item>
-          </ion-list>
-        </ion-content>
-      </ion-modal>
+      <VenueModal v-model:filter="venueFilter" @dismiss="isSelectingVenue = false"
+        :all-venues="allVenues" :venues="venues" :is-open="isSelectingVenue" 
+        @select:venue="selectVenue($event)" />
 
     </ion-content>
 
@@ -133,46 +78,55 @@
 import { 
   IonContent, IonHeader, IonList, 
   IonPage, IonRefresher, IonRefresherContent, 
-  IonTitle, IonToolbar, IonModal,
-  IonButton, IonSearchbar, IonLabel,
-  IonButtons, IonChip, IonIcon, IonItem
+  IonTitle, IonToolbar, IonChip, IonIcon
 } from '@ionic/vue'
+
 import EventListItem from '@/components/EventListItem.vue'
+import BandModal from '@/components/BandModal.vue'
+import LocationModal from '@/components/LocationModal.vue'
+import RangeModal from '@/components/RangeModal.vue'
+import VenueModal from '@/components/VenueModal.vue'
+
 import { defineComponent } from 'vue'
 import { useEvents } from '@/data/events'
-import { DatePicker } from 'v-calendar'
 import { format } from 'date-fns'
-import { close, calendar, mapSharp, checkmarkSharp, peopleSharp } from 'ionicons/icons';
+import { close, calendar, mapSharp, checkmarkSharp, peopleSharp, homeSharp } from 'ionicons/icons';
 import { useLocationSelect } from '@/data/location'
 import { useRangeSelect } from '@/data/date'
 import { useBandSelect } from '@/data/bands'
+import { useVenueSelect } from '@/data/venues'
 
 export default defineComponent({
   name: 'HomePage',
   setup() {
     
-    const { filter: locationFilter, isSelectingLocation, selectLocation, locations, allLocations } = useLocationSelect()
     const { range, isSelectingRange, onDateRangeSelected, selectQuickRange }  = useRangeSelect()
+    const { filter: locationFilter, locations, allLocations, selectLocation, isSelectingLocation } = useLocationSelect()
     const { filter: bandFilter, allBands, bands, selectBand, isSelectingBand } = useBandSelect()
-    
-    const { events, refresh } = useEvents(range, locations, bands)
+    const { filter: venueFilter, allVenues, venues, selectVenue, isSelectingVenue } = useVenueSelect()
+    const { events, refresh } = useEvents(range, locations, venues, bands)
     
     return {
       events,
       range,
       locationFilter,
       bandFilter,
+      venueFilter,
       bands,
       locations,
+      venues,
       allLocations,
       allBands,
+      allVenues,
       isSelectingRange,
       isSelectingLocation,
       isSelectingBand,
+      isSelectingVenue,
       onDateRangeSelected,
       selectLocation,
       selectQuickRange,
       selectBand,
+      selectVenue,
       refresh: (ev: CustomEvent) => {
         refresh(() => {
           ev.detail.complete();
@@ -183,7 +137,7 @@ export default defineComponent({
       
         return out
       },
-      icons: { close, calendar, mapSharp, checkmarkSharp, peopleSharp }
+      icons: { close, calendar, mapSharp, checkmarkSharp, peopleSharp, homeSharp }
     }
   },
   components: {
@@ -195,16 +149,13 @@ export default defineComponent({
     IonRefresherContent,
     IonTitle,
     IonToolbar,
-    IonModal,
-    IonButton,
-    IonSearchbar, 
-    IonLabel,
-    IonButtons, 
     IonChip, 
     IonIcon,
-    IonItem,
-    DatePicker,
-    EventListItem
+    RangeModal,
+    EventListItem,
+    BandModal,
+    LocationModal,
+    VenueModal,
   },
 });
 </script>
@@ -215,8 +166,8 @@ export default defineComponent({
     --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
 
-  ion-modal ion-toolbar {    
-    --color: white;
+  ion-modal ion-header {
+    --min-height: 60px;
   }
 
   .quick-filter {

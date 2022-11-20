@@ -18,6 +18,7 @@
       <p>
         {{ event.weekday }} {{ event.time }}
         <ion-badge color="medium" v-if="event.extra?.toLowerCase() === 'pro'">PRO-dans</ion-badge>
+        <ion-badge color="medium" v-else-if="event.extra?.length < 12">{{ event.extra }}</ion-badge>
       </p>
       <p v-if="event.city === event.county && event.county === event.region">
         {{ event.city }}
@@ -76,7 +77,8 @@ export default defineComponent({
   margin-right: 6px;
 }
 .list-item ion-label ion-badge {
-  float:right
+  float: right;
+  color: white;
 }
 
 .list-item h1 {
@@ -133,6 +135,6 @@ export default defineComponent({
 }
 .list-item .event-image ion-icon {
   width: 100px;
-  scale: 3.0;
+  font-size: 90px;
 }
 </style>

@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { initializeApp } from 'firebase/app'
 import { collection, doc, getFirestore, limit, onSnapshot, orderBy, query, QueryConstraint, QuerySnapshot, where } from "firebase/firestore";
 
@@ -38,10 +38,12 @@ function iso(date?: Date): string {
 export function useEvents(
     datesRef: Ref<undefined | { start: Date, end: Date }>, 
     locationRef: Ref<undefined | string[]>,
+    venueRef: Ref<undefined | string[]>,
     bandsRef: Ref<undefined | string[]>) {
   
   const firestore = getFirestore()
   const events = ref<DanceEvent[]>([])
+  const loading = ref(false)
 
   function isBand(e: DanceEvent) {
     const filters = bandsRef.value
@@ -57,19 +59,23 @@ export function useEvents(
     const location = locationRef.value 
       ? [where('region', 'in', locationRef.value)]
       : []
+    const venue = venueRef.value 
+      ? [where('place', 'in', venueRef.value)]
+      : []
     const dates = datesRef.value ? 
       [
         where('date', '>=', iso(datesRef.value.start)),
         where('date', '<=', iso(datesRef.value.end))
       ] : [
-        where('date', '>=', iso())
+        where('date', '>=', iso()),
+        where('date', '<=', iso(addDays(new Date(), 30)))
       ]
     const hasBand = bandsRef.value && bandsRef.value.length > 0
     const bands = (locationRef.value || datesRef.value || !hasBand) ? []
       : [where('band', 'in', bandsRef.value)]
 
     return [
-      ...location,
+      ...(venueRef.value ? venue : location),
       ...dates,
       ...bands,
       orderBy("date"),
@@ -80,6 +86,7 @@ export function useEvents(
   
   function onSnapshotUpdated(snap: QuerySnapshot) {
     console.log('Loaded',  snap.size ,'events')
+    loading.value = false
     const docs: DanceEvent[] = [];
     snap.forEach((doc) => {
         docs.push(doc.data() as DanceEvent);
@@ -94,9 +101,12 @@ export function useEvents(
       unsubscribe.value = undefined
     }
     console.log('Loading events...')
+    loading.value = true
     unsubscribe.value = onSnapshot(q, onSnapshotUpdated);
   })
   onMounted(() => {
+    console.log('Loading events...')
+    loading.value = true
     unsubscribe.value = onSnapshot(eventsQuery.value, onSnapshotUpdated, err => console.error(err));
   })
   onUnmounted(() => {
@@ -112,6 +122,7 @@ export function useEvents(
       unsubscribe.value = undefined
     }
     console.log('Loading events...')
+    loading.value = true
     unsubscribe.value = onSnapshot(eventsQuery.value, (res) => {
       onSnapshotUpdated(res)
       fn()

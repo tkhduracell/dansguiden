@@ -1,9 +1,10 @@
 import { sortedUniq } from 'lodash';
 import { ref, Ref, computed } from 'vue';
+import { useStorage } from './storage';
 
 export function useLocation(filter: Ref<string | undefined>) {
-    
-    const locations = ref<string[]>()
+    const locations = useStorage<string[]>('locations')
+
     const base = [  
       { id: 1, name: "Blekinge", city: "Karlskrona"},
       { id: 2, name: "Dalarna", city: "Falun"},
@@ -30,9 +31,11 @@ export function useLocation(filter: Ref<string | undefined>) {
 
     const allLocations = computed(() => {
         const f = filter.value
+        const without = base.filter(c => !locations.value?.includes(c.name))
         return f ?
-            base.filter(c => c.name.toLocaleLowerCase().includes(f.toLocaleLowerCase())) :
-            base
+            without
+              .filter(c => c.name.toLocaleLowerCase().includes(f.toLocaleLowerCase())) :
+            without
     })
 
     return { 
@@ -52,6 +55,7 @@ export function useLocationSelect() {
     } else {
       locations.value = sortedUniq([name, ...(locations.value ?? [])].sort())
     }
+    filter.value = undefined
     isSelectingLocation.value = false
   }
 

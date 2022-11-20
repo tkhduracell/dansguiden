@@ -1,6 +1,7 @@
 import { collection, doc, getDoc, getDocs, getFirestore, query, orderBy } from "firebase/firestore";
 import { maxBy, sortedUniq } from "lodash";
 import { computed, onMounted, ref, Ref, watch } from "vue";
+import { useStorage } from "./storage";
 
 export type Band = {
     id?: string,
@@ -38,7 +39,8 @@ export function useBand(bandNameRef: Ref<string | undefined>) {
 
 export type BandItem = { name: string, id: string }
 export function useBandSelect() {
-    const bands = ref<string[] | undefined>()
+    const bands = useStorage<string[]>('bands')
+
     const filter = ref<string>()
     const isSelectingBand = ref(false)
     const all = ref<BandItem[]>([
@@ -50,6 +52,7 @@ export function useBandSelect() {
     const store = getFirestore()
     const q = query(
         collection(store, 'metadata_bands'), 
+        // where('in30Days', '>=', 1),
         orderBy('count')
     )
 
@@ -71,6 +74,7 @@ export function useBandSelect() {
         } else {
             bands.value = sortedUniq([name, ...(bands.value ?? [])].sort())
         }
+        filter.value = undefined
     }
 
     const allBands = computed(() => {
@@ -79,7 +83,7 @@ export function useBandSelect() {
         if (f && f.length >= 2) {
             return nonSelections.filter(b => b.name.toLocaleLowerCase().startsWith(f.toLocaleLowerCase()))
         }
-        return nonSelections.slice(0, 7) ?? []
+        return nonSelections.slice(0, 14) ?? []
     })
 
     return { filter, bands, allBands, isSelectingBand, selectBand }
