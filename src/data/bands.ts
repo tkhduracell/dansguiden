@@ -1,6 +1,6 @@
-import { collection, doc, getDoc, getDocs, getFirestore, query, orderBy, where } from "firebase/firestore";
-import { maxBy, sortedUniq } from "lodash";
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { collection, getDocs, getFirestore, query, orderBy, where } from "firebase/firestore";
+import { sortedUniq } from "lodash";
+import { computed, onMounted, ref } from "vue";
 import { useStorage } from "./storage";
 
 export type Band = {
@@ -49,6 +49,9 @@ export function useBandSelect() {
             bands.value = bands.value.filter(l => l !== name)
         } else {
             bands.value = sortedUniq([name, ...(bands.value ?? [])].sort())
+        }
+        if (bands.value.length === 0) {
+            bands.value = undefined
         }
         filter.value = undefined
     }

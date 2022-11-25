@@ -57,8 +57,10 @@ export function useLocationSelect() {
     } else {
       locations.value = sortedUniq([name, ...(locations.value ?? [])].sort())
     }
+    if (locations.value.length === 0) {
+      locations.value = undefined
+    }
     filter.value = undefined
-    isSelectingLocation.value = false
   }
 
   return { locations, allLocations, filter, isSelectingLocation, selectLocation }

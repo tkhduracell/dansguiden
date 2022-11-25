@@ -11,7 +11,7 @@
         <ion-content class="ion-padding bands" :scroll-events="true">
           <ion-searchbar placeholder="Sök" :value="filter" @ionChange="emit('update:filter', $event.detail?.value)"/>
           <ion-list>
-            <ion-item v-for="b in bands" :key="'band-' + b">
+            <ion-item v-for="b in bands" :key="'band-' + b" @click="emit('select:band', b)">
               <ion-label>
                 <h2>{{ b }}</h2>
               </ion-label>

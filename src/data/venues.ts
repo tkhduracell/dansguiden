@@ -5,15 +5,9 @@ import { useStorage } from "./storage";
 
 export type Venue = {
     name: string,
-//    city: string
-//    county: string
+    city: string
+    county: string
     region: string
-    count: number
-//    in7Days: number
-    in30Days: number
-//    in90Days: number
-    in180Days: number
-    image?: string
 }
 
 export function useVenueSelect() {
@@ -22,7 +16,7 @@ export function useVenueSelect() {
     const filter = ref<string>()
     const isSelectingVenue = ref(false)
     const all = ref<Venue[]>([
-      { name: 'Nalen', region: 'Stockholm', count: 1, in180Days: 1, in30Days: 1 }
+      { name: 'Nalen', region: 'Stockholm', city: 'Stockholm', county: 'Stockholm' }
     ])
     
     const store = getFirestore()
@@ -37,8 +31,8 @@ export function useVenueSelect() {
             const docs = await getDocs(q)
             const out: Venue[] = []
             docs.forEach(item => {
-                const { count, region, in30Days, in180Days } = item.data() as Pick<Venue, 'count' | 'region' | 'in30Days' | 'in180Days'> 
-                out.push({ name: item.id, count, region, in30Days, in180Days })
+                const { city, county, region } = item.data() as Pick<Venue, 'region' | 'city' | 'county'> 
+                out.push({ name: item.id, city, county, region })
             })
             console.log('Loaded', out.length, 'venues')
             all.value = out
@@ -50,6 +44,9 @@ export function useVenueSelect() {
             venues.value = venues.value.filter(l => l !== name)
         } else {
             venues.value = sortedUniq([name, ...(venues.value ?? [])].sort())
+        }
+        if (venues.value.length === 0) {
+            venues.value = undefined
         }
         filter.value = undefined
     }

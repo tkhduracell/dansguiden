@@ -13,7 +13,7 @@
         <ion-button size="small" fill="outline" @click="emit('select:weeks', 2)">Kommande 2 veckor</ion-button>
         <ion-button size="small" fill="outline" @click="emit('select:weeks', 4)">Kommande månad</ion-button>
       </div>
-      <date-picker mode="date" :sm=12 :rows=2 @change="emit('update:range', $event)" :value="range" is-range is-expanded />
+      <date-picker mode="date" :sm=12 :rows=2 @update:modelValue="emit('update:range', $event)" :modelValue="range" is-range is-expanded />
     </ion-content>
   </ion-modal>
 </template>

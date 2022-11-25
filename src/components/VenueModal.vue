@@ -41,7 +41,7 @@ import {
 
 defineProps<{
     venues?: string[],
-    allVenues: { name: string, region: string, count: number }[],
+    allVenues: { name: string, region: string }[],
     filter?: string,
     isOpen: boolean
 }>()

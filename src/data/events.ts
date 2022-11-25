@@ -85,11 +85,14 @@ export function useEvents(
 
   const eventCol = collection(firestore, 'events')
   const filters = computed<QueryConstraint[]>(() => {
+    const hasLocation = locationRef.value && locationRef.value.length > 0
+    const hasVenue = venueRef.value && venueRef.value.length > 0
+    const hasBand = bandsRef.value && bandsRef.value.length > 0
     
-    const location = locationRef.value 
+    const location = hasLocation
       ? [where('region', 'in', locationRef.value)]
       : []
-    const venue = venueRef.value 
+    const venue = hasVenue
       ? [where('place', 'in', venueRef.value)]
       : []
     const dates = datesRef.value ? 
@@ -100,16 +103,15 @@ export function useEvents(
         where('date', '>=', iso()),
         where('date', '<=', iso(addDays(new Date(), 30)))
       ]
-    const hasBand = bandsRef.value && bandsRef.value.length > 0
-    const bands = (locationRef.value || datesRef.value || !hasBand) ? []
+    const bands = (hasLocation || datesRef.value || !hasBand) ? []
       : [where('band', 'in', bandsRef.value)]
 
     return [
-      ...(venueRef.value ? venue : location),
+      ...(hasVenue ? venue : location),
       ...dates,
       ...bands,
       orderBy("date"),
-      limit(locationRef.value || datesRef.value ? 10000 : 10)
+      limit(hasLocation || datesRef.value ? 10000 : 10)
     ]
   })
   const eventsQuery = computed(() => query(eventCol, ...filters.value))

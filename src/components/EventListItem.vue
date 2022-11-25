@@ -1,8 +1,8 @@
 <template>
   <ion-item v-if="event" :routerLink="'/event/' + event._id" detail class="list-item">
     <div slot="start" class="event-image">
-      <ion-img :src="event.metadata.band.spotify.image_small" v-if="event.metadata.band.spotify.image_small" />
-      <ion-img :src="event.metadata.place.places_api.photo_small" v-else-if="event.metadata.place.places_api.photo_small" />
+      <ion-img :src="event.metadata.band.spotify.image_small" v-if="event.metadata.band?.spotify?.image_small" />
+      <ion-img :src="event.metadata.place.places_api.photo_small" v-else-if="event.metadata.place?.places_api?.photo_small" />
       <ion-img :src="event.spotify_image" v-else-if="event.spotify_image" />
       <ion-icon :icon="imageSharp" v-else/>
     </div>
