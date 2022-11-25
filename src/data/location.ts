@@ -5,28 +5,30 @@ import { useStorage } from './storage';
 export function useLocation(filter: Ref<string | undefined>) {
     const locations = useStorage<string[]>('locations')
 
+    let i = 0
     const base = [  
-      { id: 1, name: "Blekinge", city: "Karlskrona"},
-      { id: 2, name: "Dalarna", city: "Falun"},
-      { id: 3, name: "Gävleborg", city: "Gävle"},
-      // { id: 4, name: "Gotland", city: "Visby"},
-      { id: 5, name: "Halland", city: "Halmstad"},
-      { id: 6, name: "Jämtland", city: "Östersund"},
-      { id: 7, name: "Jönköping", city: "Närområde"},
-      { id: 8, name: "Kalmar", city: "Öland"},
-      { id: 9, name: "Kronoberg", city: "Växjö"},
-      { id: 10, name: "Norrbotten", city: "Luleå"},
-      { id: 11, name: "Örebro", city: "Närområde"},
-      { id: 12, name: "Östergötland", city: "Linköping"},
-      { id: 13, name: "Skåne", city: "Malmö"},
-      { id: 14, name: "Södermanland", city: "Nyköping"},
-      { id: 15, name: "Stockholm", city: "Närområde"},
-      { id: 16, name: "Uppsala", city: "Närområde"},
-      { id: 17, name: "Värmland", city: "Karlstad"},
-      { id: 18, name: "Västerbotten", city: "Umeå"},
-      { id: 19, name: "Västernorrland", city: "Härnösand"},
-      { id: 20, name: "Västmanland", city: "Västerås"},
-      { id: 21, name: "Västra Götaland", city: "Göteborg"}
+      { id: i++, name: "Blekinge", city: "Karlskrona"},
+      { id: i++, name: "Dalarna", city: "Falun"},
+      { id: i++, name: "Gävleborg", city: "Gävle"},
+      { id: i++, name: "Gotland", city: "Visby"},
+      { id: i++, name: "Halland", city: "Halmstad"},
+      { id: i++, name: "Jämtland", city: "Östersund"},
+      { id: i++, name: "Jönköping", city: "Närområde"},
+      { id: i++, name: "Kalmar", city: "Öland"},
+      { id: i++, name: "Kronoberg", city: "Växjö"},
+      { id: i++, name: "Norrbotten", city: "Luleå"},
+      { id: i++, name: "Örebro", city: "Närområde"},
+      { id: i++, name: "Östergötland", city: "Linköping"},
+      { id: i++, name: "Skåne", city: "Malmö"},
+      { id: i++, name: "Södermanland", city: "Nyköping"},
+      { id: i++, name: "Stockholm", city: "Närområde"},
+      { id: i++, name: "Stockholm (Båt)", city: "Närområde"},
+      { id: i++, name: "Uppsala", city: "Närområde"},
+      { id: i++, name: "Värmland", city: "Karlstad"},
+      { id: i++, name: "Västerbotten", city: "Umeå"},
+      { id: i++, name: "Västernorrland", city: "Härnösand"},
+      { id: i++, name: "Västmanland", city: "Västerås"},
+      { id: i++, name: "Västra Götaland", city: "Göteborg"}
     ]
 
     const allLocations = computed(() => {

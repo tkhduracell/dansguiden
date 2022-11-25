@@ -45,9 +45,9 @@ import { defineProps, defineEmits } from 'vue';
 import { checkmarkSharp } from 'ionicons/icons';
 
 defineProps<{
-    bands: string[] | undefined,
+    bands?: string[],
     allBands: { name: string, id: string }[],
-    filter: string | undefined,
+    filter?: string,
     isOpen: boolean
 }>()
 

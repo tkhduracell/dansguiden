@@ -20,7 +20,7 @@
         <ion-item v-for="l in allVenues" :key="'ven-' + l.name" @click="emit('select:venue', l.name)">
           <ion-label>
             <h2>{{ l.name }}</h2>
-            <p>Halland</p>
+            <p>{{ l.region }}</p>
           </ion-label>
           <ion-icon :icon="checkmarkSharp" color="primary" slot="end" v-if="venues?.includes(l.name)"></ion-icon>
         </ion-item>
@@ -40,9 +40,9 @@ import {
 } from '@ionic/vue'
 
 defineProps<{
-    venues: string[] | undefined,
-    allVenues: { name: string, count: number }[],
-    filter: string | undefined,
+    venues?: string[],
+    allVenues: { name: string, region: string, count: number }[],
+    filter?: string,
     isOpen: boolean
 }>()
 

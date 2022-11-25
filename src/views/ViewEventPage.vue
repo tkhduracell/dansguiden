@@ -3,8 +3,7 @@
     <ion-header :translucent="true">
       <ion-toolbar :title="'adads'">
         <ion-title>
-          {{ event?.band ?? 'Event' }},
-          {{ event?.place ?? '' }}
+          Om Dansen
         </ion-title>
         <ion-buttons slot="start">
           <ion-back-button :text="getBackButtonText()" default-href="/">
@@ -13,26 +12,42 @@
       </ion-toolbar>
     </ion-header>
     
-    <ion-content :fullscreen="true" v-if="event">      
-      <div class="ion-padding band">
-        <IonImg :src="band?.main_image ?? event.spotify_image" 
-          style="max-width: 260px; margin: 0 auto;" 
-          v-if="event.spotify_image"/>
-        <div v-if="event.city">
-          <b>Plats: </b> {{ event.city }}, {{ event.county }}, {{ event.region }}
+    <ion-content :fullscreen="true" v-if="event"> 
+      <div class="ion-padding event">
+        <h2>{{ event.band }}</h2>
+        <h5>{{ event.place }}</h5>
+        <IonImg :src="event.metadata.band.spotify.image_large" 
+          style="max-width: 260px; margin: 1em auto;" 
+          v-if="event.metadata.band.spotify.image_large"/>
+        <IonImg :src="event.metadata.place.places_api.photo_large" 
+          style="max-width: 260px; margin: 1em auto;" 
+          v-else-if="event.metadata.place.places_api.photo_large"/>
+        <div class="details">
+          <div v-if="event.city">
+            <b>Plats: </b> {{ event.city }}, {{ event.county }}, {{ event.region }}
+          </div>
+          <div v-if="event.metadata.place.places_api.address">
+            <b>Adress: </b> 
+            <a :href="maps_link"  v-if="maps_link">
+              {{ event.metadata.place.places_api.address }}
+            </a>
+            <span v-else>{{ event.metadata.place.places_api.address }}</span>
+          </div>
+          <div v-if="event.date">
+            <b>Datum: </b> {{ event.weekday }} {{ event.date }} 
+          </div>
+          <div v-if="event.time">
+            <b>Tid: </b> {{ event.time }}
+          </div>
+          <div v-if="event.extra">
+            <b>Info: </b> {{ event.extra }}
+          </div>
         </div>
-        <div v-if="event.date">
-          <b>Datum: </b> {{ event.weekday }} {{ event.date }} 
+        <div style="display: flex;justify-content: center; margin-top: 1.6em">
+          <iframe v-if="embed_url" style="border-radius: 12px; max-width: 400px;" 
+            :src="embed_url" width="100%" height="300" frameBorder="0" 
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
         </div>
-        <div v-if="event.time">
-          <b>Tid: </b> {{ event.time }}
-        </div>
-        <div v-if="event.extra">
-          <b>Info: </b> {{ event.extra }}
-        </div>
-        <iframe v-if="band?.embed_url" style="border-radius:12px" 
-          :src="band.embed_url" width="100%" height="300" frameBorder="0" 
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
       </div>
     </ion-content>
   </ion-page>
@@ -41,31 +56,27 @@
 <script lang="ts">
 import { useRoute } from 'vue-router';
 import { IonBackButton, IonButtons, IonImg, IonContent, IonHeader, IonTitle, IonPage, IonToolbar } from '@ionic/vue';
-import { personCircle } from 'ionicons/icons';
 import { useEvent } from '../data/events';
 import { computed, defineComponent } from 'vue';
-import { useBand } from '@/data/bands';
 
 export default defineComponent({
-  name: 'ViewMessagePage',
-  data() {
-    return {
-      personCircle,
-      getBackButtonText: () => {
-        const win = window as any;
-        const mode = win && win.Ionic && win.Ionic.mode;
-        return mode === 'ios' ? 'Events' : '';
-      }
-    }
-  },
+  name: 'ViewEventPage',
   setup() {
     const route = useRoute();
     const { event } = useEvent(route.params.id as string)
     
-    const bandName = computed(() => event.value?.band)
-    const { band } = useBand(bandName)
-
-    return { event, band }
+    return { 
+      event,
+      embed_url: computed(() => event.value?.metadata.band.spotify.id 
+        ? `https://open.spotify.com/embed/artist/${event.value?.metadata.band.spotify.id}?utm_source=generator` : null),
+      maps_link: computed(() => event.value?.metadata.place.places_api.place_id 
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.value.place)}&query_place_id=${encodeURIComponent(event.value.metadata.place.places_api.place_id)}`: null),
+      getBackButtonText: () => {
+        const win = window as any;
+        const mode = win && win.Ionic && win.Ionic.mode;
+        return mode === 'ios' ? 'Danser' : '';
+      }
+    }
   },
   components: {
     IonBackButton,
@@ -81,42 +92,22 @@ export default defineComponent({
 </script>
 
 <style scoped>
-ion-item {
-  --inner-padding-end: 0;
-  --background: transparent;
-}
 
 ion-label {
   margin-top: 12px;
   margin-bottom: 12px;
 }
 
-ion-item h2 {
-  font-weight: 600;
+.event h2 {
+  margin-top: 0px;
 }
 
-ion-item .date {
-  float: right;
-  align-items: center;
-  display: flex;
-}
-
-ion-item ion-icon {
-  font-size: 42px;
-  margin-right: 8px;
-}
-
-ion-item ion-note {
-  font-size: 15px;
-  margin-right: 12px;
-  font-weight: normal;
-}
-
-.band div {
+.event div {
   margin: 6px 0;
+  font-size: 0.9rem;
 }
 
-p {
+.event p {
   line-height: 22px;
 }
 </style>

@@ -40,9 +40,9 @@ import {
 } from '@ionic/vue'
 
 defineProps<{
-    locations: string[] | undefined,
+    locations?: string[],
     allLocations: { name: string, city: string, id: number }[],
-    filter: string | undefined,
+    filter?: string,
     isOpen: boolean
 }>()
 

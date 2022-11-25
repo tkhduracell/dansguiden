@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, getFirestore, query, orderBy } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, getFirestore, query, orderBy, where } from "firebase/firestore";
 import { maxBy, sortedUniq } from "lodash";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStorage } from "./storage";
@@ -11,30 +11,6 @@ export type Band = {
     updated_at: Date
     main_image?: string,
     embed_url?: string
-}
-
-export function useBand(bandNameRef: Ref<string | undefined>) {
-    const store = getFirestore()
-    
-    const band = ref<Band>()
-    
-    watch(bandNameRef, async (bandName) => {
-        if (bandName) {
-            const d = doc(store, 'band_metadata', bandName)
-            const result = await getDoc(d)
-            const data = result.data() as Band
-            
-            const main_image = maxBy(data.images, i => i.height)?.url
-
-            const embed_url = data.id ? `https://open.spotify.com/embed/artist/${data.id}?utm_source=generator` : undefined
-            band.value = { ...data, main_image, embed_url }
-
-        } else {
-            band.value = undefined
-        }
-    })
-    
-    return { band }
 }
 
 export type BandItem = { name: string, id: string }
@@ -52,8 +28,8 @@ export function useBandSelect() {
     const store = getFirestore()
     const q = query(
         collection(store, 'metadata_bands'), 
-        // where('in30Days', '>=', 1),
-        orderBy('count')
+        where('counts.in_180_days', '>=', 1),
+        orderBy('counts.in_180_days')
     )
 
     onMounted(() => {

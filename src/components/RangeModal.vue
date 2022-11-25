@@ -28,7 +28,7 @@ import { DatePicker } from 'v-calendar'
 import { defineProps, defineEmits } from 'vue'
 
 defineProps<{
-    range: { start: Date, end: Date } | undefined,
+    range?: { start: Date, end: Date },
     isOpen: boolean
 }>()
 

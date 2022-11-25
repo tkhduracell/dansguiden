@@ -3,6 +3,32 @@ import { initializeApp } from 'firebase/app'
 import { collection, doc, getFirestore, limit, onSnapshot, orderBy, query, QueryConstraint, QuerySnapshot, where } from "firebase/firestore";
 
 import { computed, onMounted, onUnmounted, Ref, ref, watch } from 'vue';
+export type MetadataBand = {
+  spotify: {
+    id: string,
+    name: string,
+    image_small?: string
+    image_large?: string
+  } | Record<string, never>
+}
+export type MetadataPlace = {
+  general: {
+    county: string,
+    region: string,  
+    city: string,
+    website_url?: string,
+    facebook_url?: string
+    program_url?: string
+  },
+  places_api: {
+    place_id: string,
+    address: string,
+    name: string,
+    photo_large?: string,
+    photo_small?: string
+  }
+}
+
 export type DanceEvent = {
   _id: string,
   city: string,
@@ -15,9 +41,13 @@ export type DanceEvent = {
   time: string,
   updated_at: string,
   updated_at_pretty: string,
-  spotify_id: string,
-  spotify_image: string,
+  spotify_id?: string,
+  spotify_image?: string,
   extra: string,
+  metadata: {
+    band: MetadataBand,
+    place: MetadataPlace
+  }
 }
 
 const firebaseConfig = {
