@@ -21,11 +21,12 @@ export type MetadataPlace = {
     program_url?: string
   },
   places_api: {
-    place_id: string,
-    address: string,
+    id: string,
     name: string,
+    address: string,
+    photo_small?: string,
     photo_large?: string,
-    photo_small?: string
+    photo_attributions?: string[],
   }
 }
 
