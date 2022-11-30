@@ -16,21 +16,21 @@
       <div class="ion-padding event">
         <h1>{{ event.place }}</h1>
         <h5>{{ event.band }}</h5>
-        <div class="image">
+        <div class="image" v-if="event.metadata">
           <IonImg :src="event.metadata.band.spotify.image_large" 
             v-if="event.metadata.band.spotify.image_large"/>
           <IonImg :src="event.metadata.place.places_api.photo_large" 
             v-else-if="event.metadata.place.places_api.photo_large"/>
         </div>
-        <div class="image-attribution" v-if="!event.metadata.band.spotify.image_large && event.metadata.place.places_api.photo_large">
+        <div class="image-attribution" v-if="!event.metadata?.band.spotify.image_large && event.metadata?.place.places_api.photo_large">
           <div v-for="photo_attr in event.metadata.place.places_api.photo_attributions" :key="photo_attr" v-html="photo_attr"/>
         </div>
         <div class="actions">
-          <IonButton v-if="event.metadata.place.general.website_url" @click="openUrl(event!.metadata.place.general.website_url!)">
+          <IonButton v-if="event.metadata?.place.general.website_url" @click="openUrl(event!.metadata?.place.general.website_url!)">
             <ion-icon slot="start" :icon="globeSharp" />
             Websida
           </IonButton>
-          <IonButton v-if="event.metadata.place.general.facebook_url" @click="openUrl(event!.metadata.place.general.facebook_url!)">
+          <IonButton v-if="event.metadata?.place.general.facebook_url" @click="openUrl(event!.metadata?.place.general.facebook_url!)">
             <ion-icon slot="start" :icon="logoFacebook" />
             Facebook
           </IonButton>
@@ -40,7 +40,7 @@
           </IonButton>
         </div>
         <div class="details">
-          <div v-if="event.metadata.place.places_api">
+          <div v-if="event.metadata?.place.places_api">
             <b>Adress: </b> 
             <a :href="maps_link"  v-if="maps_link">
               {{ event.metadata.place.places_api.address.replace(/, Sverige/, '') }}
@@ -68,7 +68,7 @@
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
         </div>
         <div class="spotify_button" v-if="event?.metadata?.band.spotify?.id">
-          <IonButton @click="openUrl(`https://open.spotify.com/artist/${event?.metadata.band.spotify.id}`)" >
+          <IonButton @click="openUrl(`https://open.spotify.com/artist/${event?.metadata?.band.spotify.id}`)" >
             <ion-icon slot="start" :src="require(`@/assets/spotify.svg`)" />
             Öppna {{ event.metadata.band.spotify.name }} i Spotify
           </IonButton>
@@ -105,7 +105,7 @@ export default defineComponent({
         return `${city}, ${county}, ${region}`
       }),
       embed_url: computed(() => {
-        const { id } = event.value?.metadata.band.spotify ?? {}
+        const { id } = event.value?.metadata?.band.spotify ?? {}
         return id
           ? `https://open.spotify.com/embed/artist/${id}?utm_source=generator` 
           : null;
@@ -199,7 +199,6 @@ ion-label {
   display: flex;
   justify-content: center;
 }
-.event .spotify_button ion-button {}
 .event .spotify_embed {
   display: flex;
   justify-content: center;

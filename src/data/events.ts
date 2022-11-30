@@ -45,7 +45,7 @@ export type DanceEvent = {
   spotify_id?: string,
   spotify_image?: string,
   extra: string,
-  metadata: {
+  metadata?: {
     band: MetadataBand,
     place: MetadataPlace
   }
