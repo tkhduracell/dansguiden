@@ -24,6 +24,7 @@
     "core-js": "^3.6.5",
     "date-fns": "^2.29.3",
     "firebase": "^9.13.0",
+    "google-calendar-url": "^0.0.5",
     "ionicons": "^6.0.3",
     "lodash": "^4.17.21",
     "v-calendar": "^3.0.0-alpha.8",
