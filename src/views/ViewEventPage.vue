@@ -26,20 +26,25 @@
           <div v-for="photo_attr in event.metadata.place.places_api.photo_attributions" :key="photo_attr" v-html="photo_attr"/>
         </div>
         <div class="actions">
-          <IonButton v-if="event.metadata?.place.general.website_url" @click="openUrl(event!.metadata?.place.general.website_url!)">
-            <ion-icon slot="start" :icon="globeSharp" />
-            Websida
-          </IonButton>
-          <IonButton v-if="event.metadata?.place.general.facebook_url" @click="openUrl(event!.metadata?.place.general.facebook_url!)">
-            <ion-icon slot="start" :icon="logoFacebook" />
-            Facebook
-          </IonButton>
           <IonButton @click="openUrl(nav_link ?? '')"  v-if="nav_link">
             <ion-icon slot="start" :icon="compassSharp" />
             Navigera
           </IonButton>
+          <IonButton @click="openUrl(event_link ?? '')"  v-if="event_link">
+            <ion-icon slot="start" :icon="calendarSharp" />
+            Lägg till
+          </IonButton>
         </div>
         <div class="details">
+          <div v-if="event.city">
+            <b>Plats: </b> {{ location }}
+          </div>
+          <div v-if="event.time">
+            <b>Tid: </b> {{ event.time }}
+          </div>
+          <div v-if="event.date">
+            <b>Datum: </b> {{ event.weekday }}dag {{ event.date }}
+          </div>
           <div v-if="event.metadata?.place.places_api">
             <b>Adress: </b> 
             <a :href="maps_link"  v-if="maps_link">
@@ -49,14 +54,17 @@
               {{ event.metadata.place.places_api.address.replace(/, Sverige/, '') }}
             </span>
           </div>
-          <div v-if="event.city">
-            <b>Plats: </b> {{ location }}
+          <div v-if="event.metadata?.place.general.website_url">
+            <b>Hemsida: </b>
+            <a :href="event.metadata.place.general.website_url">
+              {{ prettyUrl(event.metadata.place.general.website_url) }}
+            </a>
           </div>
-          <div v-if="event.date">
-            <b>Datum: </b> {{ event.weekday }}dag {{ event.date }} 
-          </div>
-          <div v-if="event.time">
-            <b>Tid: </b> {{ event.time }}
+          <div v-if="event.metadata?.place.general.facebook_url">
+            <b>Facebook: </b>
+            <a :href="event.metadata.place.general.facebook_url">
+              {{ prettyUrl(event.metadata.place.general.facebook_url) }}
+            </a>
           </div>
           <div v-if="event.extra">
             <b>Info: </b> {{ event.extra }}
@@ -81,29 +89,30 @@
 <script lang="ts">
 import { useRoute } from 'vue-router'
 import { IonBackButton, IonButtons, IonButton, IonIcon, IonImg, IonContent, IonHeader, IonTitle, IonPage, IonToolbar } from '@ionic/vue'
-import { globeSharp, logoFacebook, compassSharp } from 'ionicons/icons'
+import { globeSharp, logoFacebook, compassSharp, calendarSharp } from 'ionicons/icons'
 import { useEvent } from '../data/events'
 import { computed, defineComponent } from 'vue'
 import { Browser } from '@capacitor/browser'
-
+import { googleCalendarEventUrl } from 'google-calendar-url';
+ 
 export default defineComponent({
   name: 'ViewEventPage',
   setup() {
     const route = useRoute();
     const { event } = useEvent(route.params.id as string)
-    
+    const location = computed(() => {
+      const { city, county, region } = event.value ?? {}
+      if (city === county && county == region ) {
+        return city
+      }
+      if (city === county ) {
+        return `${county}, ${region}`
+      }
+      return `${city}, ${county}, ${region}`
+    })
     return { 
       event,
-      location: computed(() => {
-        const { city, county, region } = event.value ?? {}
-        if (city === county && county == region ) {
-          return city
-        }
-        if (city === county ) {
-          return `${county}, ${region}`
-        }
-        return `${city}, ${county}, ${region}`
-      }),
+      location,
       embed_url: computed(() => {
         const { id } = event.value?.metadata?.band.spotify ?? {}
         return id
@@ -126,17 +135,48 @@ export default defineComponent({
           ? `https://www.google.com/maps/dir/?api=1&destination=${destination}&destination_place_id=${destination_place_id}`
           : null;
       }),
+      event_link: computed(() => {
+        if (!event.value || !event.value.time) return null
+        const { time, date, place, band, metadata } = event.value
+        
+        const split = time.split(/\s*[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]\s*/gi, 2)
+        if (split.length !== 2) return null
+        
+        let [start, end] = split
+        start =  date.replace(/-/gi, '') + 'T' + start.replace(/:/gi, '') + '00'
+        end = date.replace(/-/gi, '') + 'T' +  end.replace(/:/gi, '') + '00'
+        
+        const url = googleCalendarEventUrl({
+          start,
+          end,
+          
+          title: [band, place].join(', '),
+          details: [
+            ['Tid', time],
+            ['Band', band],
+            ['Plats', [place, location.value].join(',')],
+            ['Address', metadata?.place?.places_api?.address],
+            ['Facebook', metadata?.place?.general?.facebook_url],
+            ['Hemsida', metadata?.place?.general?.website_url]
+          ].filter(tup => tup.every(t => t)).map(tup => tup.join(': ')).join('\n'),
+          location: metadata?.place?.places_api?.address ?? place
+        });
+
+        return url
+      }),
       getBackButtonText: () => {
         const win = window as any;
         const mode = win && win.Ionic && win.Ionic.mode;
         return mode === 'ios' ? 'Danser' : '';
       },
+      prettyUrl: (url: string) => url.replace(/https?:\/\/(www\.)?/gi, '').replace(/\/$/, ''),
       async openUrl(url: string) {
         await Browser.open({ url });
       },
       globeSharp,
       logoFacebook,
       compassSharp,
+      calendarSharp
     }
   },
   components: {
@@ -180,6 +220,7 @@ ion-label {
 }
 .event .actions ion-button {
   flex-grow: 1;
+  height: 3em;
 }
 .event h1 {
   margin-top: 0;
