@@ -17,12 +17,12 @@
         <h1>{{ event.place }}</h1>
         <h5>{{ event.band }}</h5>
         <div class="image" v-if="event.metadata">
-          <IonImg :src="event.metadata.band.spotify.image_large" 
-            v-if="event.metadata.band.spotify.image_large"/>
-          <IonImg :src="event.metadata.place.places_api.photo_large" 
-            v-else-if="event.metadata.place.places_api.photo_large"/>
+          <IonImg :src="event.metadata.band.spotify?.image_large" 
+            v-if="event.metadata.band.spotify?.image_large"/>
+          <IonImg :src="event.metadata.place.places_api?.photo_large" 
+            v-else-if="event.metadata.place.places_api?.photo_large"/>
         </div>
-        <div class="image-attribution" v-if="!event.metadata?.band.spotify.image_large && event.metadata?.place.places_api.photo_large">
+        <div class="image-attribution" v-if="!event.metadata?.band.spotify?.image_large && event.metadata?.place.places_api.photo_large">
           <div v-for="photo_attr in event.metadata.place.places_api.photo_attributions" :key="photo_attr" v-html="photo_attr"/>
         </div>
         <div class="actions">
@@ -30,7 +30,7 @@
             <ion-icon slot="start" :icon="compassSharp" />
             Navigera
           </IonButton>
-          <IonButton @click="openUrl(event_link ?? '')"  v-if="event_link">
+          <IonButton @click="openCalendarEventUrl()" v-if="supportCalendar">
             <ion-icon slot="start" :icon="calendarSharp" />
             Lägg till
           </IonButton>
@@ -93,8 +93,8 @@ import { globeSharp, logoFacebook, compassSharp, calendarSharp } from 'ionicons/
 import { useEvent } from '../data/events'
 import { computed, defineComponent } from 'vue'
 import { Browser } from '@capacitor/browser'
-import { googleCalendarEventUrl } from 'google-calendar-url';
- 
+import { useCalendarEvent } from '@/data/calendar-event'
+
 export default defineComponent({
   name: 'ViewEventPage',
   setup() {
@@ -110,8 +110,13 @@ export default defineComponent({
       }
       return `${city}, ${county}, ${region}`
     })
+
+    const { supportCalendar, openCalendarEventUrl } = useCalendarEvent(event, location)
+
     return { 
       event,
+      supportCalendar,
+      openCalendarEventUrl,
       location,
       embed_url: computed(() => {
         const { id } = event.value?.metadata?.band.spotify ?? {}
@@ -134,35 +139,6 @@ export default defineComponent({
         return id && address
           ? `https://www.google.com/maps/dir/?api=1&destination=${destination}&destination_place_id=${destination_place_id}`
           : null;
-      }),
-      event_link: computed(() => {
-        if (!event.value || !event.value.time) return null
-        const { time, date, place, band, metadata } = event.value
-        
-        const split = time.split(/\s*[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]\s*/gi, 2)
-        if (split.length !== 2) return null
-        
-        let [start, end] = split
-        start =  date.replace(/-/gi, '') + 'T' + start.replace(/:/gi, '') + '00'
-        end = date.replace(/-/gi, '') + 'T' +  end.replace(/:/gi, '') + '00'
-        
-        const url = googleCalendarEventUrl({
-          start,
-          end,
-          
-          title: [band, place].join(', '),
-          details: [
-            ['Tid', time],
-            ['Band', band],
-            ['Plats', [place, location.value].join(',')],
-            ['Address', metadata?.place?.places_api?.address],
-            ['Facebook', metadata?.place?.general?.facebook_url],
-            ['Hemsida', metadata?.place?.general?.website_url]
-          ].filter(tup => tup.every(t => t)).map(tup => tup.join(': ')).join('\n'),
-          location: metadata?.place?.places_api?.address ?? place
-        });
-
-        return url
       }),
       getBackButtonText: () => {
         const win = window as any;
