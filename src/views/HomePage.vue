@@ -40,7 +40,7 @@
         </ion-chip>
 
         <ion-chip :outline="!venues" @click="isSelectingVenue = true">
-          <ion-icon :icon="icons.homeSharp" color="primary"></ion-icon>
+          <ion-icon :icon="icons.businessSharp" color="primary"></ion-icon>
           <span v-if="venues && venues.length > 1">{{ venues[0] }} (+{{ venues.length - 1 }})</span>
           <span v-else-if="venues && venues.length == 1">{{ venues[0] }}</span>
           <span v-else>Välj plats</span>
@@ -90,7 +90,7 @@ import VenueModal from '@/components/VenueModal.vue'
 import { defineComponent } from 'vue'
 import { useEvents } from '@/data/events'
 import { format } from 'date-fns'
-import { close, calendar, mapSharp, checkmarkSharp, peopleSharp, homeSharp } from 'ionicons/icons';
+import { close, calendar, mapSharp, checkmarkSharp, peopleSharp, homeSharp, businessSharp } from 'ionicons/icons';
 import { useLocationSelect } from '@/data/location'
 import { useRangeSelect } from '@/data/date'
 import { useBandSelect } from '@/data/bands'
@@ -137,7 +137,7 @@ export default defineComponent({
       
         return out
       },
-      icons: { close, calendar, mapSharp, checkmarkSharp, peopleSharp, homeSharp }
+      icons: { close, calendar, mapSharp, checkmarkSharp, peopleSharp, homeSharp, businessSharp }
     }
   },
   components: {

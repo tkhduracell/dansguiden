@@ -14,8 +14,9 @@
     
     <ion-content :fullscreen="true" v-if="event"> 
       <div class="ion-padding event">
-        <h1>{{ event.place }}</h1>
-        <h5>{{ event.band }}</h5>
+        <h1>{{ event.band }}</h1>
+        <h2>{{ event.place }}</h2>
+        <h3 v-if="event.city">{{ location }}</h3>
         <div class="image" v-if="event.metadata">
           <IonImg :src="event.metadata.band.spotify?.image_large" 
             v-if="event.metadata.band.spotify?.image_large"/>
@@ -25,28 +26,39 @@
         <div class="image-attribution" v-if="!event.metadata?.band.spotify?.image_large && event.metadata?.place.places_api.photo_large">
           <div v-for="photo_attr in event.metadata.place.places_api.photo_attributions" :key="photo_attr" v-html="photo_attr"/>
         </div>
-        <div class="actions">
-          <IonButton @click="openUrl(nav_link ?? '')"  v-if="nav_link">
-            <ion-icon slot="start" :icon="compassSharp" />
-            Navigera
-          </IonButton>
-          <IonButton @click="openCalendarEventUrl()" v-if="supportCalendar">
-            <ion-icon slot="start" :icon="calendarSharp" />
-            Lägg till
-          </IonButton>
-        </div>
         <div class="details">
-          <div v-if="event.city">
-            <b>Plats: </b> {{ location }}
+          <div v-if="event.date">
+            <div class="icon">
+              <ion-icon :icon="calendarSharp" />
+            </div>
+            {{ event.weekday }}dag {{ event.date }}
           </div>
           <div v-if="event.time">
-            <b>Tid: </b> {{ event.time }}
+            <div class="icon">
+              <ion-icon :icon="time" />
+            </div>
+            {{ event.time }}
           </div>
-          <div v-if="event.date">
-            <b>Datum: </b> {{ event.weekday }}dag {{ event.date }}
+          <div v-if="event.metadata?.place.general.website_url">
+            <div class="icon">
+              <ion-icon :icon="globeSharp" />
+            </div>
+            <a :href="event.metadata.place.general.website_url">
+              {{ prettyUrl(event.metadata.place.general.website_url) }}
+            </a>
+          </div>
+          <div v-if="event.metadata?.place.general.facebook_url">
+            <div class="icon">
+              <ion-icon :icon="logoFacebook" />
+            </div>
+            <a :href="event.metadata.place.general.facebook_url">
+              {{ prettyUrl(event.metadata.place.general.facebook_url) }}
+            </a>
           </div>
           <div v-if="event.metadata?.place.places_api">
-            <b>Adress: </b> 
+            <div class="icon">
+              <ion-icon :icon="compassSharp" />
+            </div>
             <a :href="maps_link"  v-if="maps_link">
               {{ event.metadata.place.places_api.address.replace(/, Sverige/, '') }}
             </a>
@@ -54,31 +66,22 @@
               {{ event.metadata.place.places_api.address.replace(/, Sverige/, '') }}
             </span>
           </div>
-          <div v-if="event.metadata?.place.general.website_url">
-            <b>Hemsida: </b>
-            <a :href="event.metadata.place.general.website_url">
-              {{ prettyUrl(event.metadata.place.general.website_url) }}
-            </a>
-          </div>
-          <div v-if="event.metadata?.place.general.facebook_url">
-            <b>Facebook: </b>
-            <a :href="event.metadata.place.general.facebook_url">
-              {{ prettyUrl(event.metadata.place.general.facebook_url) }}
-            </a>
-          </div>
           <div v-if="event.extra">
             <b>Info: </b> {{ event.extra }}
           </div>
         </div>
-        <div class="spotify_embed">
-          <iframe v-if="embed_url" 
-            :src="embed_url" width="100%" height="300" frameBorder="0" 
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
-        </div>
-        <div class="spotify_button" v-if="event?.metadata?.band.spotify?.id">
-          <IonButton @click="openUrl(`https://open.spotify.com/artist/${event?.metadata?.band.spotify.id}`)" >
+        <div class="actions">
+          <IonButton size="default"  @click="openUrl(nav_link ?? '')"  v-if="nav_link">
+            <ion-icon slot="start" :icon="compassSharp" />
+            Navigera med Maps
+          </IonButton>
+          <IonButton size="default"  @click="openCalendarEventUrl()" v-if="supportCalendar">
+            <ion-icon slot="start" :icon="calendarSharp" />
+            Lägg till i din kalender
+          </IonButton>
+          <IonButton size="default"  @click="openUrl(`https://open.spotify.com/artist/${event?.metadata?.band.spotify.id}`)" v-if="event?.metadata?.band.spotify?.id">
             <ion-icon slot="start" :src="require(`@/assets/spotify.svg`)" />
-            Öppna {{ event.metadata.band.spotify.name }} i Spotify
+            Lyssna med Spotify
           </IonButton>
         </div>
       </div>
@@ -89,27 +92,18 @@
 <script lang="ts">
 import { useRoute } from 'vue-router'
 import { IonBackButton, IonButtons, IonButton, IonIcon, IonImg, IonContent, IonHeader, IonTitle, IonPage, IonToolbar } from '@ionic/vue'
-import { globeSharp, logoFacebook, compassSharp, calendarSharp } from 'ionicons/icons'
+import { globeSharp, logoFacebook, compassSharp, calendarSharp, time } from 'ionicons/icons'
 import { useEvent } from '../data/events'
 import { computed, defineComponent } from 'vue'
 import { Browser } from '@capacitor/browser'
 import { useCalendarEvent } from '@/data/calendar-event'
 
+
 export default defineComponent({
   name: 'ViewEventPage',
   setup() {
     const route = useRoute();
-    const { event } = useEvent(route.params.id as string)
-    const location = computed(() => {
-      const { city, county, region } = event.value ?? {}
-      if (city === county && county == region ) {
-        return city
-      }
-      if (city === county ) {
-        return `${county}, ${region}`
-      }
-      return `${city}, ${county}, ${region}`
-    })
+    const { event, location } = useEvent(route.params.id as string)
 
     const { supportCalendar, openCalendarEventUrl } = useCalendarEvent(event, location)
 
@@ -118,12 +112,6 @@ export default defineComponent({
       supportCalendar,
       openCalendarEventUrl,
       location,
-      embed_url: computed(() => {
-        const { id } = event.value?.metadata?.band.spotify ?? {}
-        return id
-          ? `https://open.spotify.com/embed/artist/${id}?utm_source=generator` 
-          : null;
-      }),
       maps_link: computed(() => {
         const { id } = event.value?.metadata?.place?.places_api ?? {}
         const query = encodeURIComponent(event.value?.place ?? '')
@@ -152,7 +140,8 @@ export default defineComponent({
       globeSharp,
       logoFacebook,
       compassSharp,
-      calendarSharp
+      calendarSharp,
+      time
     }
   },
   components: {
@@ -178,7 +167,7 @@ ion-label {
 }
 .event .image {
   display: flex;
-  max-height: 280px;
+  width: 100%;
   justify-content: center;
 }
 .event .image-attribution {
@@ -192,37 +181,38 @@ ion-label {
 }
 .event .actions {
   display: flex;
+  flex-direction: column;
   justify-content: space-evenly;
-}
-.event .actions ion-button {
-  flex-grow: 1;
-  height: 3em;
+  gap: 0.1em;
 }
 .event h1 {
   margin-top: 0;
   margin-bottom: 0;
+  font-size: 3rem;
 }
-.event h5 {
+.event h2 {
   margin-top: 0;
+  font-size: 2rem;
+}
+.event h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  font-weight: 400;
 }
 .event .details div {
   margin: 6px 0;
-  font-size: 1rem;
+  font-size: 1.2rem;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.event .details div .icon {
+  display: flex;
+  margin-right: 0.1em;
+  font-size: 32px;
+  width: 32px;
 }
 .event p {
   line-height: 22px;
-}
-.event .spotify_button {
-  display: flex;
-  justify-content: center;
-}
-.event .spotify_embed {
-  display: flex;
-  justify-content: center;
-  margin-top: 0.4em;
-}
-.event .spotify_embed iframe {
-  border-radius: 12px; 
-  
 }
 </style>
