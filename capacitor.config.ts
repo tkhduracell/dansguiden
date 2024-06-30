@@ -4,7 +4,7 @@ const config: CapacitorConfig = {
   appId: 'feality.dans',
   appName: 'Dansguiden',
   webDir: 'dist',
-  bundledWebRuntime: false
+  bundledWebRuntime: true
 };
 
 export default config;
