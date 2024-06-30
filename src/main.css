@@ -1,0 +1,8 @@
+/* When screen is over 786px apply a max width */
+@media (min-width: 786px) {
+    .ion-page {
+        max-width: 512px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+}

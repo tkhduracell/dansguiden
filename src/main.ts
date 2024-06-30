@@ -27,6 +27,8 @@ import './theme/variables.css';
 
 import SetupCalendar from 'v-calendar';
 
+import './main.css';
+
 const app = createApp(App)
   .use(IonicVue)
   .use(SetupCalendar, {})
