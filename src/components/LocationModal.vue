@@ -17,6 +17,11 @@
           </ion-label>
           <ion-icon :icon="checkmarkSharp" color="primary" slot="end" />
         </ion-item>
+        <ion-item v-if="!filter" disabled>
+          <ion-label>
+            Använd sökfältet för att hitta platser
+          </ion-label>
+        </ion-item>
         <ion-item v-for="l in allLocations" :key="'loc-' + l.id" @click="emit('select:location', l.name)">
           <ion-label>
             <h2>{{ l.name }}</h2>
@@ -52,3 +57,9 @@ const emit = defineEmits<{
     (event: 'dismiss'): void
 }>()
 </script>
+
+<style scoped>
+ion-modal {
+  --height: 50em;
+}
+</style>

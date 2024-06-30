@@ -52,3 +52,9 @@ const emit = defineEmits<{
     (event: 'dismiss'): void
 }>()
 </script>
+
+<style scoped>
+ion-modal {
+  --height: 50em;
+}
+</style>

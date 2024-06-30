@@ -9,9 +9,11 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
+      <b>Visa danser inom</b>
       <div class="quick-filter">
-        <ion-button size="small" fill="outline" @click="emit('select:weeks', 2)">Kommande 2 veckor</ion-button>
-        <ion-button size="small" fill="outline" @click="emit('select:weeks', 4)">Kommande månad</ion-button>
+        <ion-button size="large" fill="solid" @click="emit('select:weeks', 2)">14 dagar</ion-button>
+        <ion-button size="large" fill="solid" @click="emit('select:weeks', 4)">30 dagar</ion-button>
+        <ion-button size="large" fill="solid" @click="emit('select:weeks', 12)">90 dagar</ion-button>
       </div>
       <date-picker mode="date" :sm=12 :rows=2 @update:modelValue="emit('update:range', $event)" :modelValue="range" is-range is-expanded />
     </ion-content>
@@ -38,3 +40,9 @@ const emit = defineEmits<{
     (event: 'dismiss'): void
 }>()
 </script>
+
+<style scoped>
+ion-modal {
+  --height: 45em;
+}
+</style>
