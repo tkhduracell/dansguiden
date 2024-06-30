@@ -189,5 +189,16 @@ export function useEvent(id: string) {
     }
   })
 
-  return { event }
+  const location = computed(() => {
+    const { city, county, region } = event.value ?? {}
+    const out: string[] = []
+    for (const loc of [city, county, region]) {
+      if (loc && !out.includes(loc)) {
+        out.push(loc)
+      }
+    }
+    return out.join(', ')
+  })  
+
+  return { event, location }
 }
