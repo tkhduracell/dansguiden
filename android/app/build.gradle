@@ -1,13 +1,21 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.triplet.play'
+
+def keystoreProperties = read(
+        System.getenv('ANDROID_KEYSTORE_PROPERTIES')
+                ?: "google_play_keystore.properties")
+def keyStoreFile = System.getenv('ANDROID_KEYSTORE_PATH')
+        ?: 'google_play_keystore.key'
 
 android {
+    namespace "feality.dans"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "feality.dans"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 55
-        versionName "3.0.4"
+        versionCode 58
+        versionName "3.1." + versionCode 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -15,18 +23,34 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keyStoreFile)
+            storePassword keystoreProperties['storePassword']
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     defaultConfig {
         archivesBaseName = "${applicationId}-v${versionName}-${versionCode}"
     }
 }
 
+
+play {
+    def credentialsFile = System.getenv('ANDROID_PUBLISHER_CREDENTIALS')
+            ?: System.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+            ?: 'android-publisher-dansguiden-b3a7d-7bec1f88d7f7.json'
+    serviceAccountCredentials.set(file(credentialsFile))
+    defaultToAppBundles.set(true)
+}
 
 repositories {
     flatDir{
@@ -55,4 +79,11 @@ try {
     }
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+
+Properties read(String p) {
+    def keystorePropertiesFile = rootProject.file(p)
+    def keystoreProperties = new Properties()
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    return keystoreProperties
 }
