@@ -102,7 +102,7 @@ export function useEvents(
         where('date', '<=', iso(datesRef.value.end))
       ] : [
         where('date', '>=', iso()),
-        where('date', '<=', iso(addDays(new Date(), 30)))
+        where('date', '<=', iso(addDays(new Date(), 14)))
       ]
     const bands = (hasLocation || datesRef.value || !hasBand) ? []
       : [where('band', 'in', bandsRef.value)]
@@ -112,7 +112,7 @@ export function useEvents(
       ...dates,
       ...bands,
       orderBy("date"),
-      limit(hasLocation || datesRef.value ? 10000 : 10)
+      limit(1000)
     ]
   })
   const eventsQuery = computed(() => query(eventCol, ...filters.value))
