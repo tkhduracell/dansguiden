@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Dansguiden — a Swedish dance-event guide. Vue 3 + Ionic 6 SPA built with Vue CLI, packaged for iOS and Android via Capacitor 4, and deployed to Firebase Hosting as a web app. Firestore is the only backend (no custom server).
+Dansguiden — a Swedish dance-event guide. Vue 3 + Ionic 6 SPA built with Vue CLI, packaged for iOS and Android via Capacitor 6, and deployed to Firebase Hosting as a web app. Firestore is the only backend (no custom server).
 
 UI copy is Swedish (e.g. `Välj datum`, `Hitta din dans`). Keep new user-facing strings in Swedish; tests assert against Swedish text (`tests/unit/example.spec.ts`).
 
@@ -69,6 +69,15 @@ Initialized once in `src/data/events.ts` with the public web config. Collections
 - `.github/workflows/deploy-firebase.yaml` deploys hosting on push to `master`.
 - Capacitor `appId` is `feality.dans`, `webDir` is `dist`. Mobile releases require `npm run build && cap sync` before opening the native IDE.
 - Android signing keystore is fetched from GCP Secret Manager — see `README.md` for the `gcloud secrets versions access` commands.
+
+## Native version pins worth knowing
+
+- **Capacitor 6.2.x** (do not jump to 7+ without revisiting JDK 21, AGP 8.7, and edge-to-edge layout work).
+- **Android:** Gradle 8.7, AGP 8.6.1, JDK 17, compileSdk 35, targetSdk 35, minSdk 23, play-publisher 3.12.1.
+- **iOS:** deployment target 13.0, CocoaPods.
+- `capacitor.config.ts` pins `server.androidScheme: 'http'`. Cap 6's default flipped to `https`, but flipping it would orphan all existing user data stored under `@capacitor/preferences` (still keyed to `http://localhost`). **Do not remove this pin** without a data migration plan.
+- `android/app/src/main/res/values/styles.xml` sets `windowOptOutEdgeToEdgeEnforcement="true"` as a stay against Android 15's forced edge-to-edge. **This attribute is removed in Android 16** — before bumping `targetSdkVersion` to 36, the `BridgeActivity` / WebView needs real `WindowInsets` handling and the AppCompat themes likely need to move to Material3.
+- `ios/App/App/PrivacyInfo.xcprivacy` declares `NSUserDefaults` reason `CA92.1` for `@capacitor/preferences`. If you add another required-reason API (file timestamps, system boot time, disk space, active keyboards), add the reason here or App Store will reject the upload.
 
 ## Conventions
 
