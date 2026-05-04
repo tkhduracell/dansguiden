@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -24,6 +25,15 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Probe FIREBASE_TOKEN
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          echo "len=${#FIREBASE_TOKEN}"
+          echo "first_byte_hex=$(printf '%s' "$FIREBASE_TOKEN" | head -c 1 | xxd -p)"
+          echo "last_4_bytes_hex=$(printf '%s' "$FIREBASE_TOKEN" | tail -c 4 | xxd -p)"
+          echo "sha256_prefix=$(printf '%s' "$FIREBASE_TOKEN" | sha256sum | cut -c1-16)"
 
       - name: Deploy to Firebase Hosting
         uses: w9jds/firebase-action@master
