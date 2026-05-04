@@ -2,6 +2,9 @@
   "name": "dansguiden",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -20,15 +23,15 @@
     "android:upload": "cd android && ./gradlew --no-daemon publishBundle"
   },
   "dependencies": {
-    "@capacitor/android": "^4.8.2",
-    "@capacitor/app": "4.1.1",
-    "@capacitor/browser": "^4.1.1",
-    "@capacitor/core": "4.8.2",
-    "@capacitor/haptics": "4.1.0",
-    "@capacitor/ios": "4.8.1",
-    "@capacitor/keyboard": "4.1.1",
-    "@capacitor/preferences": "4.0.2",
-    "@capacitor/status-bar": "4.1.1",
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/app": "^6.0.2",
+    "@capacitor/browser": "^6.0.5",
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/haptics": "^6.0.2",
+    "@capacitor/ios": "^6.2.1",
+    "@capacitor/keyboard": "^6.0.3",
+    "@capacitor/preferences": "^6.0.3",
+    "@capacitor/status-bar": "^6.0.2",
     "@ionic/vue": "^6.0.0",
     "@ionic/vue-router": "^6.0.0",
     "calendar-link": "^2.4.0",
@@ -43,7 +46,7 @@
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
-    "@capacitor/cli": "4.8.2",
+    "@capacitor/cli": "^6.2.1",
     "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
