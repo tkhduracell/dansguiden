@@ -32,3 +32,5 @@ npm-debug.log*
 /www
 
 /.firebase/hosting.*.cache
+
+.claude/worktrees/
