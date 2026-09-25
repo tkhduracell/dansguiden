@@ -14,7 +14,7 @@ android {
         applicationId "feality.dans"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 59
+        versionCode 60
         versionName "3.1." + versionCode
         archivesBaseName = "${applicationId}-v${versionName}-${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
