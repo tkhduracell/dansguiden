@@ -32,7 +32,7 @@ jobs:
             functions/package-lock.json
 
       - name: Install deps
-        run: true || npm ci && npm ci --prefix functions
+        run: npm ci && npm ci --prefix functions
 
       - name: Run build (tsc)
         run: true || npm run --prefix functions build
