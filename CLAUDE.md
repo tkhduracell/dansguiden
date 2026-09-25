@@ -10,6 +10,8 @@ UI copy is Swedish (e.g. `Välj datum`, `Hitta din dans`). Keep new user-facing 
 
 ## Commands
 
+Requires Node >= 20 (`engines` in package.json).
+
 ```bash
 npm run dev          # Vue CLI dev server
 npm run build        # production build → dist/
@@ -29,11 +31,12 @@ Mobile (Capacitor):
 npm run ios:watch        # dev server on 0.0.0.0:3000 for live reload on device
 npm run ios:open         # cap open ios   (after npm run build && cap sync)
 npm run ios:open:live    # cap run ios -l --external
-npm run ios:release      # build + sync + open Xcode
+npm run ios:release      # build + cap sync ios + open Xcode
 
 npm run android:watch
 npm run android:open
-npm run android:release
+npm run android:open:live
+npm run android:release  # build + sync only (does not open Android Studio)
 npm run android:build    # gradle bundleRelease
 npm run android:upload   # gradle publishBundle
 ```
