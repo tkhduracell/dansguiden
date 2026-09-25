@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Dansguiden — a Swedish dance-event guide. Vue 3 + Ionic 6 SPA built with Vue CLI, packaged for iOS and Android via Capacitor 6, and deployed to Firebase Hosting as a web app. Firestore is the only backend (no custom server).
+Dansguiden — a Swedish dance-event guide. Vue 3 + Ionic 6 SPA built with Vue CLI, packaged for iOS and Android via Capacitor 8, and deployed to Firebase Hosting as a web app. Firestore is the only backend (no custom server).
 
 UI copy is Swedish (e.g. `Välj datum`, `Hitta din dans`). Keep new user-facing strings in Swedish; tests assert against Swedish text (`tests/unit/example.spec.ts`).
 
@@ -75,11 +75,11 @@ Initialized once in `src/data/events.ts` with the public web config. Collections
 
 ## Native version pins worth knowing
 
-- **Capacitor 6.2.x** (do not jump to 7+ without revisiting JDK 21, AGP 8.7, and edge-to-edge layout work).
-- **Android:** Gradle 8.7, AGP 8.6.1, JDK 17, compileSdk 35, targetSdk 35, minSdk 23, play-publisher 3.12.1.
-- **iOS:** deployment target 13.0, CocoaPods.
+- **Capacitor 8.5.x** (bumped from 6.2.x via `npx cap migrate`, one major hop at a time: 6→7→8, since `cap migrate` only migrates to the next major from whatever `@capacitor/cli` version is installed). Requires **JDK 21** — this repo's local JDK may still be 17; a real Android Gradle build must be verified with JDK 21 (CI or a local toolchain switch) before release.
+- **Android:** Gradle 8.13, AGP 8.13.0, targetSdk/compileSdk 36, minSdk 26, play-publisher 3.12.1. targetSdk 36 was required by Google Play's Aug 31 2026 target-API deadline.
+- **iOS:** deployment target 15.0 (Capacitor 8's default), CocoaPods. Capacitor 8.5 adopted the UIScene lifecycle — `ios/App/App/SceneDelegate.swift` and `UIApplicationSceneManifest` (Info.plist) were added by the migration; `AppDelegate.swift` keeps its old methods for compatibility. Running `pod install` locally needs `LANG=en_US.UTF-8` set (CocoaPods/Ruby errors otherwise on some machines).
 - `capacitor.config.ts` pins `server.androidScheme: 'http'`. Cap 6's default flipped to `https`, but flipping it would orphan all existing user data stored under `@capacitor/preferences` (still keyed to `http://localhost`). **Do not remove this pin** without a data migration plan.
-- `android/app/src/main/res/values/styles.xml` sets `windowOptOutEdgeToEdgeEnforcement="true"` as a stay against Android 15's forced edge-to-edge. **This attribute is removed in Android 16** — before bumping `targetSdkVersion` to 36, the `BridgeActivity` / WebView needs real `WindowInsets` handling and the AppCompat themes likely need to move to Material3.
+- `android/app/src/main/res/values/styles.xml` no longer opts out of edge-to-edge (`windowOptOutEdgeToEdgeEnforcement` was removed along with the targetSdk 36 bump — Android 16 deleted that attribute). Capacitor's `BridgeActivity` dispatches `WindowInsets` to the WebView and Ionic's `--ion-safe-area-*` CSS vars consume them automatically; no manual inset code was added. **Verify on a real notched/gesture-nav device** — this hasn't been visually confirmed.
 - `ios/App/App/PrivacyInfo.xcprivacy` declares `NSUserDefaults` reason `CA92.1` for `@capacitor/preferences`. If you add another required-reason API (file timestamps, system boot time, disk space, active keyboards), add the reason here or App Store will reject the upload.
 
 ## Conventions
