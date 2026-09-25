@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { initializeApp } from 'firebase-admin/app'
-import { getFirestore, QuerySnapshot } from 'firebase-admin/firestore'
+import { getFirestore, QuerySnapshot, QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import pug from 'pug'
 import path from 'path'
 import util from 'util'
@@ -17,7 +17,7 @@ const fstore = getFirestore()
 
 function snapshotAsObj<T>(query: QuerySnapshot): T[] {
   const out = [] as T[]
-  query.forEach(doc => out.push(doc.data() as T))
+  query.forEach((doc: QueryDocumentSnapshot) => out.push(doc.data() as T))
   return out
 }
 
