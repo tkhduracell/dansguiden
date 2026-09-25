@@ -10,7 +10,7 @@ UI copy is Swedish (e.g. `Välj datum`, `Hitta din dans`). Keep new user-facing 
 
 ## Commands
 
-Requires Node >= 20 (`engines` in package.json).
+Requires Node >= 22 (`engines` in package.json; Capacitor 8's CLI requires it).
 
 ```bash
 npm run dev          # Vue CLI dev server
