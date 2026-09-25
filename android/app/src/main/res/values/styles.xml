@@ -13,9 +13,6 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
-        <!-- Opt out of Android 15 forced edge-to-edge until layout/insets are migrated.
-             This attribute is removed in Android 16; revisit before bumping targetSdk to 36. -->
-        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
     </style>
 
 

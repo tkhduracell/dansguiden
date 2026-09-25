@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "vue-cli-service serve",
@@ -23,15 +23,15 @@
     "android:upload": "cd android && ./gradlew --no-daemon publishBundle"
   },
   "dependencies": {
-    "@capacitor/android": "^6.2.1",
-    "@capacitor/app": "^6.0.2",
-    "@capacitor/browser": "^6.0.5",
-    "@capacitor/core": "^6.2.1",
-    "@capacitor/haptics": "^6.0.2",
-    "@capacitor/ios": "^6.2.1",
-    "@capacitor/keyboard": "^6.0.3",
-    "@capacitor/preferences": "^6.0.3",
-    "@capacitor/status-bar": "^6.0.2",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/browser": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/keyboard": "^8.0.0",
+    "@capacitor/preferences": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0",
     "@ionic/vue": "^6.0.0",
     "@ionic/vue-router": "^6.0.0",
     "calendar-link": "^2.4.0",
@@ -46,7 +46,7 @@
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.2.1",
+    "@capacitor/cli": "^8.0.0",
     "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",

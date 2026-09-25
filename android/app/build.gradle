@@ -8,18 +8,18 @@ def keyStoreFile = System.getenv('ANDROID_KEYSTORE_PATH')
         ?: 'google_play_keystore.key'
 
 android {
-    namespace "feality.dans"
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    namespace = "feality.dans"
+    compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "feality.dans"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 59
+        versionCode 61
         versionName "3.1." + versionCode
         archivesBaseName = "${applicationId}-v${versionName}-${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
-            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
     signingConfigs {
