@@ -39,6 +39,19 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Generate throwaway debug signing keystore
+        working-directory: android
+        run: |
+          cat > google_play_keystore.properties <<'EOF'
+          keyAlias=debug
+          keyPassword=debugdebug
+          storePassword=debugdebug
+          EOF
+          keytool -genkeypair -v -keystore google_play_keystore.key -alias debug \
+            -keyalg RSA -keysize 2048 -validity 1 \
+            -storepass debugdebug -keypass debugdebug \
+            -dname "CN=CI, OU=CI, O=CI, L=CI, S=CI, C=US"
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
