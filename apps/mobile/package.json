@@ -37,7 +37,7 @@
     "calendar-link": "^2.4.0",
     "core-js": "^3.6.5",
     "date-fns": "^2.29.3",
-    "firebase": "^10.9.0",
+    "firebase": "^12.19.0",
     "google-calendar-url": "^0.0.5",
     "ionicons": "^6.0.3",
     "lodash": "^4.17.21",
