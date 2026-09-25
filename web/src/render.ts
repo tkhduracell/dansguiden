@@ -7,7 +7,7 @@ import util from 'util'
 import fs from 'fs'
 import _ from 'lodash'
 import sharp from 'sharp'
-import glob from 'glob-promise'
+import { glob } from 'glob'
 
 const writeFile = util.promisify(fs.writeFile)
 
@@ -46,7 +46,7 @@ async function render(): Promise<void> {
     pretty: true,
   }
 
-  const imageFiles = await glob.promise(path.join(__dirname, '../public/img/image?.png'))
+  const imageFiles = await glob(path.join(__dirname, '../public/img/image?.png'))
   const images = imageFiles.map(f => {
     const src = path.join('img', path.basename(f))
     return { src, thumb: src.replace(/\.png$/, ".thumb.png") }
