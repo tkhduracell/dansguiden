@@ -33,7 +33,7 @@ import { createInterface } from 'readline/promises'
   // prompt for event id
   const rl = createInterface({ input: process.stdin, output: process.stdout })
 
-  let id = null, prevId = null
+  let id: string, prevId = null
   for (; ;) {
     console.log()
     id = await rl.question(prevId ? `Enter event id (${prevId}): ` : 'Enter event id: ')

@@ -34,7 +34,8 @@ import { readFile } from 'node:fs/promises'
         buffer = await resp.arrayBuffer()
     } else {
         try {
-            buffer = await readFile(url)
+            const fileBuffer = await readFile(url)
+            buffer = fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength)
         } catch (e) {
             console.error('Invalid file', e)
             process.exit(1)
