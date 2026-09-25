@@ -1,4 +1,4 @@
-name: Android Build
+name: Mobile Android Build
 
 on:
   push:
@@ -20,14 +20,18 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+          cache-dependency-path: apps/mobile/package-lock.json
 
       - name: Install dependencies
+        working-directory: apps/mobile
         run: npm ci
 
       - name: Build web app
+        working-directory: apps/mobile
         run: npm run build
 
       - name: Sync Capacitor Android
+        working-directory: apps/mobile
         run: npx cap sync android
 
       - name: Set up JDK
@@ -40,7 +44,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Generate throwaway debug signing keystore
-        working-directory: android
+        working-directory: apps/mobile/android
         run: |
           cat > google_play_keystore.properties <<'EOF'
           keyAlias=debug
@@ -53,5 +57,5 @@ jobs:
             -dname "CN=CI, OU=CI, O=CI, L=CI, S=CI, C=US"
 
       - name: Build debug APK
-        working-directory: android
+        working-directory: apps/mobile/android
         run: ./gradlew assembleDebug --no-daemon

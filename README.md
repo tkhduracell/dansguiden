@@ -1,8 +1,9 @@
-# node_firebase_dansguiden
-The backend of dansguiden using firebase cloud functions.
+# dansguiden
+Dansguiden — backend, website, and mobile app.
 
 ---
 
 Subprojects
  - [Functions](./functions)
  - [Web](./web)
+ - [Mobile app](./apps/mobile)
