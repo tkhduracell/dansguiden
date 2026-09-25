@@ -9,7 +9,7 @@ def keyStoreFile = System.getenv('ANDROID_KEYSTORE_PATH')
 
 android {
     namespace = "feality.dans"
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "feality.dans"
         minSdkVersion rootProject.ext.minSdkVersion
