@@ -1,5 +1,6 @@
 /* eslint-disable no-await-in-loop */
-import firebase from 'firebase-admin'
+import { initializeApp } from 'firebase-admin/app'
+import { getFirestore, QuerySnapshot } from 'firebase-admin/firestore'
 import pug from 'pug'
 import path from 'path'
 import util from 'util'
@@ -10,11 +11,11 @@ import glob from 'glob-promise'
 
 const writeFile = util.promisify(fs.writeFile)
 
-firebase.initializeApp({ projectId: 'dansguiden-b3a7d'})
+initializeApp({ projectId: 'dansguiden-b3a7d'})
 
-const fstore = firebase.firestore()
+const fstore = getFirestore()
 
-function snapshotAsObj<T>(query: firebase.firestore.QuerySnapshot): T[] {
+function snapshotAsObj<T>(query: QuerySnapshot): T[] {
   const out = [] as T[]
   query.forEach(doc => out.push(doc.data() as T))
   return out
