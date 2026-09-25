@@ -109,5 +109,45 @@ jobs:
           export_environment_variables: true
   
       - name: Firebase Deploy (hosting)
-        run: npm exec -- firebase deploy --only hosting --debug
+        run: npm exec -- firebase deploy --only hosting:dansguiden-b3a7d --debug
+
+  deploy-mobile-web:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20]
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+
+      - name: Install deps
+        run: npm ci && npm ci --prefix apps/mobile
+
+      - name: Run lint (ESLint)
+        run: npm run --prefix apps/mobile lint
+
+      - name: Setup gcloud Cloud SDK auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/58654864940/locations/global/workloadIdentityPools/github-deploy-auth-pool/providers/github-deployer-auth-provider
+          service_account: firebase-adminsdk-gcvdo@dansguiden-b3a7d.iam.gserviceaccount.com
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Firebase Deploy (mobile web hosting)
+        run: npm exec -- firebase deploy --only hosting:dansguiden --debug
 

@@ -1,36 +1,83 @@
 {
-  "hosting": {
-    "public": "web/public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**",
-      "**/gha-creds-*.json"
-    ],
-    "cleanUrls": true,
-    "predeploy": [
-      "node -e \"if(process.env.CI){process.exit(0)}else{throw Error(\\'Only runs from CI!\\')}\"",
-      "npm --prefix \"$RESOURCE_DIR/..\" run build"
-    ],
-    "rewrites": [
-      {
-        "source": "/",
-        "destination": "index.html"
-      },
-      {
-        "source": "/api/events",
-        "function": "eventsFetch"
-      },
-      {
-        "source": "/api/versions",
-        "function": "versionFetch"
-      },
-      {
-        "source": "/api/images",
-        "function": "imagesFetch"
-      }
-    ]
-  },
+  "hosting": [
+    {
+      "site": "dansguiden-b3a7d",
+      "public": "web/public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "**/gha-creds-*.json"
+      ],
+      "cleanUrls": true,
+      "predeploy": [
+        "node -e \"if(process.env.CI){process.exit(0)}else{throw Error(\\'Only runs from CI!\\')}\"",
+        "npm --prefix \"$RESOURCE_DIR/..\" run build"
+      ],
+      "rewrites": [
+        {
+          "source": "/",
+          "destination": "index.html"
+        },
+        {
+          "source": "/api/events",
+          "function": "eventsFetch"
+        },
+        {
+          "source": "/api/versions",
+          "function": "versionFetch"
+        },
+        {
+          "source": "/api/images",
+          "function": "imagesFetch"
+        }
+      ]
+    },
+    {
+      "site": "dansguiden",
+      "public": "apps/mobile/dist",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "predeploy": [
+        "node -e \"if(process.env.CI){process.exit(0)}else{throw Error(\\'Only runs from CI!\\')}\"",
+        "npm --prefix apps/mobile run build"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=31536000"
+            }
+          ]
+        },
+        {
+          "source": "precache-manifest.*.js",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "service-worker.js",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "functions": {
     "predeploy": [
       "node -e \"if(process.env.CI){process.exit(0)}else{throw Error(\\'Only runs from CI!\\')}\"",
