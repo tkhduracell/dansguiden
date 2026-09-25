@@ -1,7 +1,7 @@
 {
   "hosting": [
     {
-      "site": "dansguiden-b3a7d",
+      "target": "main",
       "public": "web/public",
       "ignore": [
         "firebase.json",
@@ -34,7 +34,7 @@
       ]
     },
     {
-      "site": "dansguiden",
+      "target": "mobile",
       "public": "apps/mobile/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "predeploy": [

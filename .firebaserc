@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "dansguiden-b3a7d"
-  }
+  },
+  "targets": {
+    "dansguiden-b3a7d": {
+      "hosting": {
+        "main": [
+          "dansguiden-b3a7d"
+        ],
+        "mobile": [
+          "dansguiden"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

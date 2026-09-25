@@ -109,7 +109,7 @@ jobs:
           export_environment_variables: true
   
       - name: Firebase Deploy (hosting)
-        run: npm exec -- firebase deploy --only hosting:dansguiden-b3a7d --debug
+        run: npm exec -- firebase deploy --only hosting:main --debug
 
   deploy-mobile-web:
     runs-on: ubuntu-latest
@@ -149,5 +149,5 @@ jobs:
           export_environment_variables: true
 
       - name: Firebase Deploy (mobile web hosting)
-        run: npm exec -- firebase deploy --only hosting:dansguiden --debug
+        run: npm exec -- firebase deploy --only hosting:mobile --debug
 
