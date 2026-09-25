@@ -18,13 +18,8 @@
         <h2>{{ event.place }}</h2>
         <h3 v-if="event.city">{{ location }}</h3>
         <div class="image" v-if="event.metadata">
-          <IonImg :src="event.metadata.band.spotify?.image_large" 
+          <IonImg :src="event.metadata.band.spotify?.image_large"
             v-if="event.metadata.band.spotify?.image_large"/>
-          <IonImg :src="event.metadata.place.places_api?.photo_large" 
-            v-else-if="event.metadata.place.places_api?.photo_large"/>
-        </div>
-        <div class="image-attribution" v-if="!event.metadata?.band.spotify?.image_large && event.metadata?.place.places_api.photo_large">
-          <div v-for="photo_attr in event.metadata.place.places_api.photo_attributions" :key="photo_attr" v-html="photo_attr"/>
         </div>
         <div class="details">
           <div v-if="event.date">
