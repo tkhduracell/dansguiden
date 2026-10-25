@@ -64,8 +64,8 @@ export class PlacesApi {
 
   static photoUrl(apiKey: string, ref?: string, size = '512') {
     const param = new URLSearchParams({
-      maxHeight: size,
-      maxWidth: size,
+      maxHeightPx: size,
+      maxWidthPx: size,
       key: apiKey
     })
     return `https://places.googleapis.com/v1/${ref}/media?${param.toString()}`
