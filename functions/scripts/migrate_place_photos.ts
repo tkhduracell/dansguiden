@@ -1,9 +1,10 @@
 #!./node_modules/.bin/ts-node
 
 /**
- * One-off: replace photo URLs that still point at the retired legacy Places
- * API (https://maps.googleapis.com/maps/api/place/photo?...) with photos from
- * Places API (New), stored in Cloud Storage like PhotoCache does for new places.
+ * One-off: replace photo URLs that still point straight at a Places API
+ * (legacy https://maps.googleapis.com/maps/api/place/photo?... or
+ * https://places.googleapis.com/v1/.../media?...) with photos from Places API
+ * (New), stored in Cloud Storage like PhotoCache does for new places.
  *
  * Those legacy URLs now return a 403 error tile ("legacy API not enabled")
  * and embed the API key in public Firestore data. The new photo reference
@@ -18,13 +19,16 @@
  *   PLACES_API_KEY=... npx ts-node scripts/migrate_place_photos.ts                 # dry run
  *   PLACES_API_KEY=... npx ts-node scripts/migrate_place_photos.ts --apply --limit 5
  *   PLACES_API_KEY=... npx ts-node scripts/migrate_place_photos.ts --apply
+ *   ... --host places.googleapis.com   # only one kind of URL
  */
 import sharp from 'sharp'
 import { database } from '../src/lib/utils/database'
 import { PhotoCache } from '../src/lib/google/maps/photo_cache'
 import { PlacesApi } from '../src/lib/google/maps/places_api'
 
-const LEGACY_HOST = 'maps.googleapis.com'
+// Legacy photo endpoint (dead, 403) and direct Places API (New) media URLs
+// (work, but are billed on every view and embed the key)
+const DIRECT_HOSTS = ['maps.googleapis.com', 'places.googleapis.com']
 
 const { table } = database()
 
@@ -38,18 +42,19 @@ type PlaceDetails = { photos?: { name: string, authorAttributions?: { displayNam
 async function run(): Promise<void> {
   const apply = process.argv.includes('--apply')
   const limit = Number(arg('--limit') ?? Infinity)
+  const hosts = arg('--host') ? [arg('--host') as string] : DIRECT_HOSTS
   const apiKey = process.env.PLACES_API_KEY
 
   const snapshot = await table('metadata_places').get()
 
   const candidates = snapshot.docs.flatMap(doc => {
     const api = doc.get('places_api') as { id?: string, photo_large?: string } | undefined
-    if (!api?.id || !api.photo_large || !new URL(api.photo_large).host.endsWith(LEGACY_HOST)) return []
+    if (!api?.id || !api.photo_large || !hosts.includes(new URL(api.photo_large).host)) return []
     return [{ ref: doc.ref, name: doc.id, placeId: api.id }]
   })
 
   const todo = candidates.slice(0, limit)
-  console.log(`${snapshot.size} places, ${candidates.length} with legacy photo URLs, migrating ${todo.length}`)
+  console.log(`${snapshot.size} places, ${candidates.length} with direct Places API photo URLs, migrating ${todo.length}`)
   console.log(`Places API (New) requests: up to ${todo.length} Place Details + ${todo.length} photos`)
   if (!apply) {
     console.log('Dry run, pass --apply (and PLACES_API_KEY) to download, upload and update Firestore')
