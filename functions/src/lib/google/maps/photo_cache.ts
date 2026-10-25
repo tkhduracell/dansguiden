@@ -34,7 +34,15 @@ export class PhotoCache {
             throw new Error(`Places photo download failed: ${resp.status} ${resp.statusText}`)
         }
         const buffer = Buffer.from(await resp.arrayBuffer())
-        const ext = contentTypeToExt(resp.headers.get('content-type'))
+        return PhotoCache.store(buffer, resp.headers.get('content-type'), placeId, size)
+    }
+
+    /**
+     * Store an already downloaded photo publicly in Cloud Storage and return
+     * its public URL. Same deterministic path as `cache`.
+     */
+    static async store(buffer: Buffer, responseContentType: string | null, placeId: string, size: PhotoSize): Promise<string> {
+        const ext = contentTypeToExt(responseContentType)
         const contentType = extToContentType(ext)
         const path = `media/places-api/${placeId}/${size}.${ext}`
 
